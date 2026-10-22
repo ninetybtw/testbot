@@ -11,11 +11,17 @@ const BTN_RESTART = '🔄 Пройти заново';
 
 const KB_REMOVE = { reply_markup: { remove_keyboard: true } };
 const KB_DONE = { reply_markup: { keyboard: [[{ text: BTN_FULL }], [{ text: BTN_RESTART }]], resize_keyboard: true } };
+export const BTN_APP = '✨ Открыть приложение';
+const kbApp = (url) => ({ reply_markup: { inline_keyboard: [[{ text: BTN_APP, web_app: { url } }]] } });
+
+export { KB_DONE };
 
 export const BOT_UPSELL = 'Это короткая версия. В полном персональном разборе — прогноз на 12 месяцев по месяцам, любовь и совместимость, деньги и предназначение, а также благоприятные даты для важных решений. Нажмите «Хочу полный разбор», и я расскажу, как его получить.';
 
 const TEXT = {
-  greeting: 'Здравствуйте! Я Астра 🔮 Составлю для вас бесплатный персональный прогноз по имени, дате и месту рождения.\n\nОтвечая на вопросы, вы соглашаетесь, что эти данные будут использованы для составления прогноза.\n\nКак вас зовут полностью — фамилия, имя и отчество?',
+  greeting: 'Здравствуйте! Я Астра 🔮 Составлю для вас бесплатный персональный прогноз по имени, дате и месту рождения.\n\nОтвечая на вопросы, вы соглашаетесь, что эти данные будут использованы для составления прогноза.',
+  greetingApp: 'Здравствуйте! Я Астра 🔮 Составлю для вас бесплатный персональный прогноз по имени, дате и месту рождения.\n\nОткройте приложение — там прогноз оформлен красиво, — или ответьте на три вопроса прямо здесь, в чате.\n\nОтвечая на вопросы, вы соглашаетесь, что эти данные будут использованы для составления прогноза.',
+  askName: 'Как вас зовут полностью — фамилия, имя и отчество?',
   askDate: (firstName) => `Приятно познакомиться, ${firstName}! Когда вы родились? Напишите дату, например 14.03.1990.`,
   askPlace: 'И последнее: в каком городе или населённом пункте вы родились?',
   counting: (firstName) => `Спасибо, ${firstName}! Считаю вашу карту — это займёт несколько секунд ✨`,
@@ -65,13 +71,14 @@ export async function webhookSecret(botToken) {
 
 // ---------- Карточка клиента ----------
 
-function newLead(msg, now) {
+export function newLead(user, now) {
   return {
-    chat_id: msg.chat.id,
-    tg_username: msg.from?.username || '',
-    tg_name: [msg.from?.first_name, msg.from?.last_name].filter(Boolean).join(' '),
+    chat_id: user.id,
+    tg_username: user.username || '',
+    tg_name: [user.first_name, user.last_name].filter(Boolean).join(' '),
     stage: NEW,
     step: null,
+    source: null,
     full_name: null,
     first_name: null,
     birth_date: null,
@@ -79,7 +86,7 @@ function newLead(msg, now) {
     zodiac: null,
     life_path_number: null,
     forecast_sent: false,
-    history: [],
+    history: [{ at: now.toISOString(), text: 'Создана карточка клиента' }],
     created_at: now.toISOString(),
     updated_at: now.toISOString(),
   };
@@ -102,12 +109,41 @@ function setStage(lead, now, stage) {
   log(lead, now, `Стадия → ${stage}`);
 }
 
+// Прогноз выдан: записать результаты в карточку и сдвинуть стадию.
+export function recordForecast(lead, result, now, source) {
+  if (lead.full_name !== result.data.full_name) setField(lead, now, 'full_name', 'ФИО', result.data.full_name);
+  if (lead.birth_date !== result.data.birth_date) setField(lead, now, 'birth_date', 'Дата рождения', result.data.birth_date);
+  if (lead.birth_place !== result.data.birth_place) setField(lead, now, 'birth_place', 'Место рождения', result.data.birth_place);
+  lead.first_name = result.data.first_name;
+  setStage(lead, now, FORM_DONE);
+  setField(lead, now, 'zodiac', 'Знак зодиака', result.data.zodiac);
+  setField(lead, now, 'life_path_number', 'Число судьбы', result.data.life_path_number);
+  lead.forecast_sent = true;
+  lead.source = source;
+  lead.step = 'done';
+  log(lead, now, `Поле «Прогноз выдан» = Да (${source})`);
+  setStage(lead, now, FREE_FORECAST);
+}
+
+// Клиент попросил полный разбор. Возвращает true, если это впервые.
+export function recordWantsFull(lead, now) {
+  const first = lead.stage !== WANTS_FULL;
+  setStage(lead, now, WANTS_FULL);
+  return first;
+}
+
+export const NOTIFY = {
+  forecast: (source) => `✨ Новый лид: выдан бесплатный прогноз (${source})`,
+  wantsFull: '🔥 Горячий лид: хочет полный разбор',
+};
+
 export function cardText(lead, title = '📇 Карточка клиента в CRM') {
   const who = lead.tg_username ? `@${lead.tg_username}` : lead.tg_name || `chat ${lead.chat_id}`;
   return [
     title,
     `Клиент в Telegram: ${who}`,
     `Стадия: ${lead.stage}`,
+    ...(lead.source ? [`Источник: ${lead.source}`] : []),
     `ФИО: ${lead.full_name ?? '—'}`,
     `Дата рождения: ${lead.birth_date ?? '—'}`,
     `Место рождения: ${lead.birth_place ?? '—'}`,
@@ -122,7 +158,7 @@ export function cardText(lead, title = '📇 Карточка клиента в 
 /**
  * Обрабатывает одно обновление Telegram.
  * @param {object} update  — объект Update из Telegram
- * @param {{tg: Function, store: object, adminChatId?: string, upsell?: string, now?: Date}} deps
+ * @param {{tg: Function, store: object, adminChatId?: string, upsell?: string, appUrl?: string, now?: Date}} deps
  */
 export async function handleUpdate(update, deps) {
   const msg = update.message;
@@ -144,10 +180,7 @@ export async function handleUpdate(update, deps) {
 
   let lead = await store.get(chatId);
   const isNew = !lead;
-  if (isNew) {
-    lead = newLead(msg, now);
-    log(lead, now, 'Создана карточка клиента');
-  }
+  if (isNew) lead = newLead(msg.from ?? { id: chatId }, now);
 
   if (text === '/card' && !isNew) {
     await send(cardText(lead));
@@ -158,7 +191,9 @@ export async function handleUpdate(update, deps) {
     if (!isNew) log(lead, now, 'Клиент начал анкету заново');
     lead.step = 'name';
     await store.put(lead);
-    await send(TEXT.greeting, KB_REMOVE);
+    if (deps.appUrl) await send(TEXT.greetingApp, kbApp(deps.appUrl));
+    else await send(TEXT.greeting);
+    await send(TEXT.askName, KB_REMOVE);
     return;
   }
 
@@ -190,7 +225,6 @@ export async function handleUpdate(update, deps) {
     if (lead.step === 'place') {
       setField(lead, now, 'birth_place', 'Место рождения', parseBirthPlace(text));
       setStage(lead, now, FORM_DONE);
-      lead.step = 'done';
       await store.put(lead);
       await send(TEXT.counting(lead.first_name));
       await tg('sendChatAction', { chat_id: chatId, action: 'typing' });
@@ -200,14 +234,9 @@ export async function handleUpdate(update, deps) {
         { now, upsell: deps.upsell ?? BOT_UPSELL },
       );
       await send(result.text, KB_DONE);
-
-      setField(lead, now, 'zodiac', 'Знак зодиака', result.data.zodiac);
-      setField(lead, now, 'life_path_number', 'Число судьбы', result.data.life_path_number);
-      lead.forecast_sent = true;
-      log(lead, now, 'Поле «Прогноз выдан» = Да');
-      setStage(lead, now, FREE_FORECAST);
+      recordForecast(lead, result, now, 'чат');
       await store.put(lead);
-      await notifyAdmin('✨ Новый лид: выдан бесплатный прогноз', lead);
+      await notifyAdmin(NOTIFY.forecast('чат'), lead);
       return;
     }
   } catch (e) {
@@ -218,11 +247,10 @@ export async function handleUpdate(update, deps) {
 
   // Анкета пройдена, прогноз выдан.
   if (/разбор|хочу/i.test(text)) {
-    const already = lead.stage === WANTS_FULL;
-    setStage(lead, now, WANTS_FULL);
+    const first = recordWantsFull(lead, now);
     await store.put(lead);
     await send(TEXT.wantsFull, KB_DONE);
-    if (!already) await notifyAdmin('🔥 Горячий лид: хочет полный разбор', lead);
+    if (first) await notifyAdmin(NOTIFY.wantsFull, lead);
     return;
   }
   await send(TEXT.afterForecast, KB_DONE);

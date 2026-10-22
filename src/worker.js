@@ -1,6 +1,7 @@
 // Cloudflare Worker: Telegram-бот, мини-CRM и вебхук прогноза для TorroCRM.
 //
 //   POST /telegram         — вебхук Telegram-бота (ставится автоматически через /setup)
+//   GET  /app              — Telegram Mini App (кнопка «Прогноз» в боте), API — /app/api/*
 //   GET  /setup?key=...    — подключить бота: прописывает вебхук и меню команд
 //   GET  /crm?key=...      — карточки клиентов из бота
 //   POST /forecast         — {"name", "birth_date", "birth_place"} → прогноз (для TorroCRM)
@@ -20,6 +21,7 @@
 import { makeForecast, InputError } from './forecast.js';
 import { handleUpdate, telegramApi, kvStore, webhookSecret } from './telegram.js';
 import { renderCrmPage } from './crm.js';
+import { handleMiniApp } from './miniapp.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -99,6 +101,7 @@ async function telegramWebhook(request, env) {
       store: kvStore(env.LEADS),
       adminChatId: env.ADMIN_CHAT_ID,
       upsell: env.UPSELL_TEXT || undefined,
+      appUrl: `${new URL(request.url).origin}/app`,
     });
   } catch (e) {
     // Отвечаем 200 в любом случае, иначе Telegram будет бесконечно повторять то же сообщение.
@@ -126,11 +129,15 @@ async function setup(url, env) {
     ],
   });
   await tg('setMyShortDescription', { short_description: 'Бесплатный персональный прогноз по имени, дате и месту рождения 🔮' });
+  // Кнопка слева от поля ввода открывает Mini App.
+  const menu = await tg('setChatMenuButton', { menu_button: { type: 'web_app', text: 'Прогноз', web_app: { url: `${url.origin}/app` } } });
   return json({
     ok: hook.ok,
     bot: `https://t.me/${me.result.username}`,
     crm: `${url.origin}/crm?key=${encodeURIComponent(env.ADMIN_KEY)}`,
+    app: `${url.origin}/app`,
     webhook: hook.ok ? 'подключён' : hook.description,
+    menu_button: menu.ok ? 'подключена' : menu.description,
   });
 }
 
@@ -157,6 +164,11 @@ export default {
       case '/telegram':
         if (request.method !== 'POST') return json({ ok: false, error: 'method_not_allowed' }, 405);
         return telegramWebhook(request, env);
+      case '/app':
+      case '/app/':
+      case '/app/api/forecast':
+      case '/app/api/full':
+        return handleMiniApp(request, env, url.pathname, { tg: telegramApi(env.BOT_TOKEN, env.TELEGRAM_API) });
       case '/setup':
       case '/crm':
         if (!env.ADMIN_KEY || url.searchParams.get('key') !== env.ADMIN_KEY) {

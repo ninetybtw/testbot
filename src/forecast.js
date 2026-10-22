@@ -288,21 +288,39 @@ export function makeForecast(input, options = {}) {
   }
   const upsell = options.upsell ?? DEFAULT_UPSELL;
 
+  // Те же блоки, что и в тексте, — для карточек в Mini App.
+  const sections = {
+    title: `${name.firstName}, ваш бесплатный прогноз готов`,
+    sign: { name: sign.name, glyph: sign.icon, element: sign.element, planet: sign.planet },
+    eastern: east,
+    numbers: [
+      { key: 'life_path', label: 'Число судьбы', value: lifePath },
+      { key: 'name', label: 'Число имени', value: nameNumber },
+      { key: 'personal_year', label: `Личный год ${currentYear}`, value: personalYear },
+      { key: 'place', label: 'Число места', value: placeNumber },
+    ],
+    character: `${sign.trait} ${LIFE_PATH[lifePath]} Ваше имя несёт вибрацию числа ${nameNumber}: ${NAME_NUMBER[nameNumber]}.`,
+    period: { label: periodLabel(now), text: `${PERSONAL_YEAR[personalYear]} ${ELEMENT_PERIOD[sign.element]}` },
+    place: { name: place, text: `Число места — ${placeNumber}. ${PLACE_NUMBER[placeNumber]}` },
+    advice,
+    upsell,
+  };
+
   const text = [
-    `🔮 ${name.firstName}, ваш бесплатный прогноз готов`,
+    `🔮 ${sections.title}`,
     '',
     `${sign.icon} Знак зодиака: ${sign.name} (стихия ${sign.element}, планета ${sign.planet})`,
     `🐉 Восточный гороскоп: ${east}`,
     `🔢 Число судьбы: ${lifePath} · Число имени: ${nameNumber} · Личный год ${currentYear}: ${personalYear}`,
     '',
     '✨ Ваш характер',
-    `${sign.trait} ${LIFE_PATH[lifePath]} Ваше имя несёт вибрацию числа ${nameNumber}: ${NAME_NUMBER[nameNumber]}.`,
+    sections.character,
     '',
-    `🌙 Ближайшие 3 месяца (${periodLabel(now)})`,
-    `${PERSONAL_YEAR[personalYear]} ${ELEMENT_PERIOD[sign.element]}`,
+    `🌙 Ближайшие 3 месяца (${sections.period.label})`,
+    sections.period.text,
     '',
     `📍 Место рождения: ${place}`,
-    `Число места — ${placeNumber}. ${PLACE_NUMBER[placeNumber]}`,
+    sections.place.text,
     '',
     '💫 Совет на ближайшие дни',
     advice,
@@ -313,6 +331,7 @@ export function makeForecast(input, options = {}) {
 
   return {
     text,
+    sections,
     data: {
       full_name: name.full,
       first_name: name.firstName,

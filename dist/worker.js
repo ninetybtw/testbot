@@ -344,21 +344,37 @@ function makeForecast(input, options = {}) {
     advice = advice.replace("\u0446\u0432\u0435\u0442\u0430 \u0432\u0430\u0448\u0435\u0439 \u0441\u0442\u0438\u0445\u0438\u0438", `${ELEMENT_COLOR[sign.element]} \u0446\u0432\u0435\u0442\u0430 (\u0446\u0432\u0435\u0442\u0430 \u0432\u0430\u0448\u0435\u0439 \u0441\u0442\u0438\u0445\u0438\u0438 \u2014 ${sign.element})`);
   }
   const upsell = options.upsell ?? DEFAULT_UPSELL;
+  const sections = {
+    title: `${name.firstName}, \u0432\u0430\u0448 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u0433\u043E\u0442\u043E\u0432`,
+    sign: { name: sign.name, glyph: sign.icon, element: sign.element, planet: sign.planet },
+    eastern: east,
+    numbers: [
+      { key: "life_path", label: "\u0427\u0438\u0441\u043B\u043E \u0441\u0443\u0434\u044C\u0431\u044B", value: lifePath },
+      { key: "name", label: "\u0427\u0438\u0441\u043B\u043E \u0438\u043C\u0435\u043D\u0438", value: nameNumber },
+      { key: "personal_year", label: `\u041B\u0438\u0447\u043D\u044B\u0439 \u0433\u043E\u0434 ${currentYear}`, value: personalYear },
+      { key: "place", label: "\u0427\u0438\u0441\u043B\u043E \u043C\u0435\u0441\u0442\u0430", value: placeNumber }
+    ],
+    character: `${sign.trait} ${LIFE_PATH[lifePath]} \u0412\u0430\u0448\u0435 \u0438\u043C\u044F \u043D\u0435\u0441\u0451\u0442 \u0432\u0438\u0431\u0440\u0430\u0446\u0438\u044E \u0447\u0438\u0441\u043B\u0430 ${nameNumber}: ${NAME_NUMBER[nameNumber]}.`,
+    period: { label: periodLabel(now), text: `${PERSONAL_YEAR[personalYear]} ${ELEMENT_PERIOD[sign.element]}` },
+    place: { name: place, text: `\u0427\u0438\u0441\u043B\u043E \u043C\u0435\u0441\u0442\u0430 \u2014 ${placeNumber}. ${PLACE_NUMBER[placeNumber]}` },
+    advice,
+    upsell
+  };
   const text = [
-    `\u{1F52E} ${name.firstName}, \u0432\u0430\u0448 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u0433\u043E\u0442\u043E\u0432`,
+    `\u{1F52E} ${sections.title}`,
     "",
     `${sign.icon} \u0417\u043D\u0430\u043A \u0437\u043E\u0434\u0438\u0430\u043A\u0430: ${sign.name} (\u0441\u0442\u0438\u0445\u0438\u044F ${sign.element}, \u043F\u043B\u0430\u043D\u0435\u0442\u0430 ${sign.planet})`,
     `\u{1F409} \u0412\u043E\u0441\u0442\u043E\u0447\u043D\u044B\u0439 \u0433\u043E\u0440\u043E\u0441\u043A\u043E\u043F: ${east}`,
     `\u{1F522} \u0427\u0438\u0441\u043B\u043E \u0441\u0443\u0434\u044C\u0431\u044B: ${lifePath} \xB7 \u0427\u0438\u0441\u043B\u043E \u0438\u043C\u0435\u043D\u0438: ${nameNumber} \xB7 \u041B\u0438\u0447\u043D\u044B\u0439 \u0433\u043E\u0434 ${currentYear}: ${personalYear}`,
     "",
     "\u2728 \u0412\u0430\u0448 \u0445\u0430\u0440\u0430\u043A\u0442\u0435\u0440",
-    `${sign.trait} ${LIFE_PATH[lifePath]} \u0412\u0430\u0448\u0435 \u0438\u043C\u044F \u043D\u0435\u0441\u0451\u0442 \u0432\u0438\u0431\u0440\u0430\u0446\u0438\u044E \u0447\u0438\u0441\u043B\u0430 ${nameNumber}: ${NAME_NUMBER[nameNumber]}.`,
+    sections.character,
     "",
-    `\u{1F319} \u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 3 \u043C\u0435\u0441\u044F\u0446\u0430 (${periodLabel(now)})`,
-    `${PERSONAL_YEAR[personalYear]} ${ELEMENT_PERIOD[sign.element]}`,
+    `\u{1F319} \u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 3 \u043C\u0435\u0441\u044F\u0446\u0430 (${sections.period.label})`,
+    sections.period.text,
     "",
     `\u{1F4CD} \u041C\u0435\u0441\u0442\u043E \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F: ${place}`,
-    `\u0427\u0438\u0441\u043B\u043E \u043C\u0435\u0441\u0442\u0430 \u2014 ${placeNumber}. ${PLACE_NUMBER[placeNumber]}`,
+    sections.place.text,
     "",
     "\u{1F4AB} \u0421\u043E\u0432\u0435\u0442 \u043D\u0430 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0434\u043D\u0438",
     advice,
@@ -368,6 +384,7 @@ function makeForecast(input, options = {}) {
   ].join("\n");
   return {
     text,
+    sections,
     data: {
       full_name: name.full,
       first_name: name.firstName,
@@ -394,9 +411,13 @@ var BTN_FULL = "\u{1F52E} \u0425\u043E\u0447\u0443 \u043F\u043E\u043B\u043D\u044
 var BTN_RESTART = "\u{1F504} \u041F\u0440\u043E\u0439\u0442\u0438 \u0437\u0430\u043D\u043E\u0432\u043E";
 var KB_REMOVE = { reply_markup: { remove_keyboard: true } };
 var KB_DONE = { reply_markup: { keyboard: [[{ text: BTN_FULL }], [{ text: BTN_RESTART }]], resize_keyboard: true } };
+var BTN_APP = "\u2728 \u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435";
+var kbApp = /* @__PURE__ */ __name((url) => ({ reply_markup: { inline_keyboard: [[{ text: BTN_APP, web_app: { url } }]] } }), "kbApp");
 var BOT_UPSELL = "\u042D\u0442\u043E \u043A\u043E\u0440\u043E\u0442\u043A\u0430\u044F \u0432\u0435\u0440\u0441\u0438\u044F. \u0412 \u043F\u043E\u043B\u043D\u043E\u043C \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u043C \u0440\u0430\u0437\u0431\u043E\u0440\u0435 \u2014 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u043D\u0430 12 \u043C\u0435\u0441\u044F\u0446\u0435\u0432 \u043F\u043E \u043C\u0435\u0441\u044F\u0446\u0430\u043C, \u043B\u044E\u0431\u043E\u0432\u044C \u0438 \u0441\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C, \u0434\u0435\u043D\u044C\u0433\u0438 \u0438 \u043F\u0440\u0435\u0434\u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435, \u0430 \u0442\u0430\u043A\u0436\u0435 \u0431\u043B\u0430\u0433\u043E\u043F\u0440\u0438\u044F\u0442\u043D\u044B\u0435 \u0434\u0430\u0442\u044B \u0434\u043B\u044F \u0432\u0430\u0436\u043D\u044B\u0445 \u0440\u0435\u0448\u0435\u043D\u0438\u0439. \u041D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0425\u043E\u0447\u0443 \u043F\u043E\u043B\u043D\u044B\u0439 \u0440\u0430\u0437\u0431\u043E\u0440\xBB, \u0438 \u044F \u0440\u0430\u0441\u0441\u043A\u0430\u0436\u0443, \u043A\u0430\u043A \u0435\u0433\u043E \u043F\u043E\u043B\u0443\u0447\u0438\u0442\u044C.";
 var TEXT = {
-  greeting: "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439\u0442\u0435! \u042F \u0410\u0441\u0442\u0440\u0430 \u{1F52E} \u0421\u043E\u0441\u0442\u0430\u0432\u043B\u044E \u0434\u043B\u044F \u0432\u0430\u0441 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u043F\u043E \u0438\u043C\u0435\u043D\u0438, \u0434\u0430\u0442\u0435 \u0438 \u043C\u0435\u0441\u0442\u0443 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F.\n\n\u041E\u0442\u0432\u0435\u0447\u0430\u044F \u043D\u0430 \u0432\u043E\u043F\u0440\u043E\u0441\u044B, \u0432\u044B \u0441\u043E\u0433\u043B\u0430\u0448\u0430\u0435\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u044D\u0442\u0438 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u044B \u0434\u043B\u044F \u0441\u043E\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u043F\u0440\u043E\u0433\u043D\u043E\u0437\u0430.\n\n\u041A\u0430\u043A \u0432\u0430\u0441 \u0437\u043E\u0432\u0443\u0442 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u2014 \u0444\u0430\u043C\u0438\u043B\u0438\u044F, \u0438\u043C\u044F \u0438 \u043E\u0442\u0447\u0435\u0441\u0442\u0432\u043E?",
+  greeting: "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439\u0442\u0435! \u042F \u0410\u0441\u0442\u0440\u0430 \u{1F52E} \u0421\u043E\u0441\u0442\u0430\u0432\u043B\u044E \u0434\u043B\u044F \u0432\u0430\u0441 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u043F\u043E \u0438\u043C\u0435\u043D\u0438, \u0434\u0430\u0442\u0435 \u0438 \u043C\u0435\u0441\u0442\u0443 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F.\n\n\u041E\u0442\u0432\u0435\u0447\u0430\u044F \u043D\u0430 \u0432\u043E\u043F\u0440\u043E\u0441\u044B, \u0432\u044B \u0441\u043E\u0433\u043B\u0430\u0448\u0430\u0435\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u044D\u0442\u0438 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u044B \u0434\u043B\u044F \u0441\u043E\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u043F\u0440\u043E\u0433\u043D\u043E\u0437\u0430.",
+  greetingApp: "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439\u0442\u0435! \u042F \u0410\u0441\u0442\u0440\u0430 \u{1F52E} \u0421\u043E\u0441\u0442\u0430\u0432\u043B\u044E \u0434\u043B\u044F \u0432\u0430\u0441 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u043F\u043E \u0438\u043C\u0435\u043D\u0438, \u0434\u0430\u0442\u0435 \u0438 \u043C\u0435\u0441\u0442\u0443 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F.\n\n\u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u2014 \u0442\u0430\u043C \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u043E\u0444\u043E\u0440\u043C\u043B\u0435\u043D \u043A\u0440\u0430\u0441\u0438\u0432\u043E, \u2014 \u0438\u043B\u0438 \u043E\u0442\u0432\u0435\u0442\u044C\u0442\u0435 \u043D\u0430 \u0442\u0440\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u0430 \u043F\u0440\u044F\u043C\u043E \u0437\u0434\u0435\u0441\u044C, \u0432 \u0447\u0430\u0442\u0435.\n\n\u041E\u0442\u0432\u0435\u0447\u0430\u044F \u043D\u0430 \u0432\u043E\u043F\u0440\u043E\u0441\u044B, \u0432\u044B \u0441\u043E\u0433\u043B\u0430\u0448\u0430\u0435\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u044D\u0442\u0438 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u044B \u0434\u043B\u044F \u0441\u043E\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u043F\u0440\u043E\u0433\u043D\u043E\u0437\u0430.",
+  askName: "\u041A\u0430\u043A \u0432\u0430\u0441 \u0437\u043E\u0432\u0443\u0442 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u2014 \u0444\u0430\u043C\u0438\u043B\u0438\u044F, \u0438\u043C\u044F \u0438 \u043E\u0442\u0447\u0435\u0441\u0442\u0432\u043E?",
   askDate: /* @__PURE__ */ __name((firstName) => `\u041F\u0440\u0438\u044F\u0442\u043D\u043E \u043F\u043E\u0437\u043D\u0430\u043A\u043E\u043C\u0438\u0442\u044C\u0441\u044F, ${firstName}! \u041A\u043E\u0433\u0434\u0430 \u0432\u044B \u0440\u043E\u0434\u0438\u043B\u0438\u0441\u044C? \u041D\u0430\u043F\u0438\u0448\u0438\u0442\u0435 \u0434\u0430\u0442\u0443, \u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440 14.03.1990.`, "askDate"),
   askPlace: "\u0418 \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0435\u0435: \u0432 \u043A\u0430\u043A\u043E\u043C \u0433\u043E\u0440\u043E\u0434\u0435 \u0438\u043B\u0438 \u043D\u0430\u0441\u0435\u043B\u0451\u043D\u043D\u043E\u043C \u043F\u0443\u043D\u043A\u0442\u0435 \u0432\u044B \u0440\u043E\u0434\u0438\u043B\u0438\u0441\u044C?",
   counting: /* @__PURE__ */ __name((firstName) => `\u0421\u043F\u0430\u0441\u0438\u0431\u043E, ${firstName}! \u0421\u0447\u0438\u0442\u0430\u044E \u0432\u0430\u0448\u0443 \u043A\u0430\u0440\u0442\u0443 \u2014 \u044D\u0442\u043E \u0437\u0430\u0439\u043C\u0451\u0442 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0441\u0435\u043A\u0443\u043D\u0434 \u2728`, "counting"),
@@ -440,13 +461,14 @@ async function webhookSecret(botToken) {
   return [...new Uint8Array(digest)].slice(0, 24).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 __name(webhookSecret, "webhookSecret");
-function newLead(msg, now) {
+function newLead(user, now) {
   return {
-    chat_id: msg.chat.id,
-    tg_username: msg.from?.username || "",
-    tg_name: [msg.from?.first_name, msg.from?.last_name].filter(Boolean).join(" "),
+    chat_id: user.id,
+    tg_username: user.username || "",
+    tg_name: [user.first_name, user.last_name].filter(Boolean).join(" "),
     stage: NEW,
     step: null,
+    source: null,
     full_name: null,
     first_name: null,
     birth_date: null,
@@ -454,7 +476,7 @@ function newLead(msg, now) {
     zodiac: null,
     life_path_number: null,
     forecast_sent: false,
-    history: [],
+    history: [{ at: now.toISOString(), text: "\u0421\u043E\u0437\u0434\u0430\u043D\u0430 \u043A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u043A\u043B\u0438\u0435\u043D\u0442\u0430" }],
     created_at: now.toISOString(),
     updated_at: now.toISOString()
   };
@@ -477,12 +499,38 @@ function setStage(lead, now, stage) {
   log(lead, now, `\u0421\u0442\u0430\u0434\u0438\u044F \u2192 ${stage}`);
 }
 __name(setStage, "setStage");
+function recordForecast(lead, result, now, source) {
+  if (lead.full_name !== result.data.full_name) setField(lead, now, "full_name", "\u0424\u0418\u041E", result.data.full_name);
+  if (lead.birth_date !== result.data.birth_date) setField(lead, now, "birth_date", "\u0414\u0430\u0442\u0430 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F", result.data.birth_date);
+  if (lead.birth_place !== result.data.birth_place) setField(lead, now, "birth_place", "\u041C\u0435\u0441\u0442\u043E \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F", result.data.birth_place);
+  lead.first_name = result.data.first_name;
+  setStage(lead, now, FORM_DONE);
+  setField(lead, now, "zodiac", "\u0417\u043D\u0430\u043A \u0437\u043E\u0434\u0438\u0430\u043A\u0430", result.data.zodiac);
+  setField(lead, now, "life_path_number", "\u0427\u0438\u0441\u043B\u043E \u0441\u0443\u0434\u044C\u0431\u044B", result.data.life_path_number);
+  lead.forecast_sent = true;
+  lead.source = source;
+  lead.step = "done";
+  log(lead, now, `\u041F\u043E\u043B\u0435 \xAB\u041F\u0440\u043E\u0433\u043D\u043E\u0437 \u0432\u044B\u0434\u0430\u043D\xBB = \u0414\u0430 (${source})`);
+  setStage(lead, now, FREE_FORECAST);
+}
+__name(recordForecast, "recordForecast");
+function recordWantsFull(lead, now) {
+  const first = lead.stage !== WANTS_FULL;
+  setStage(lead, now, WANTS_FULL);
+  return first;
+}
+__name(recordWantsFull, "recordWantsFull");
+var NOTIFY = {
+  forecast: /* @__PURE__ */ __name((source) => `\u2728 \u041D\u043E\u0432\u044B\u0439 \u043B\u0438\u0434: \u0432\u044B\u0434\u0430\u043D \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 (${source})`, "forecast"),
+  wantsFull: "\u{1F525} \u0413\u043E\u0440\u044F\u0447\u0438\u0439 \u043B\u0438\u0434: \u0445\u043E\u0447\u0435\u0442 \u043F\u043E\u043B\u043D\u044B\u0439 \u0440\u0430\u0437\u0431\u043E\u0440"
+};
 function cardText(lead, title = "\u{1F4C7} \u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u043A\u043B\u0438\u0435\u043D\u0442\u0430 \u0432 CRM") {
   const who = lead.tg_username ? `@${lead.tg_username}` : lead.tg_name || `chat ${lead.chat_id}`;
   return [
     title,
     `\u041A\u043B\u0438\u0435\u043D\u0442 \u0432 Telegram: ${who}`,
     `\u0421\u0442\u0430\u0434\u0438\u044F: ${lead.stage}`,
+    ...lead.source ? [`\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A: ${lead.source}`] : [],
     `\u0424\u0418\u041E: ${lead.full_name ?? "\u2014"}`,
     `\u0414\u0430\u0442\u0430 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F: ${lead.birth_date ?? "\u2014"}`,
     `\u041C\u0435\u0441\u0442\u043E \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F: ${lead.birth_place ?? "\u2014"}`,
@@ -507,10 +555,7 @@ async function handleUpdate(update, deps) {
   }
   let lead = await store.get(chatId);
   const isNew = !lead;
-  if (isNew) {
-    lead = newLead(msg, now);
-    log(lead, now, "\u0421\u043E\u0437\u0434\u0430\u043D\u0430 \u043A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u043A\u043B\u0438\u0435\u043D\u0442\u0430");
-  }
+  if (isNew) lead = newLead(msg.from ?? { id: chatId }, now);
   if (text === "/card" && !isNew) {
     await send(cardText(lead));
     return;
@@ -519,7 +564,9 @@ async function handleUpdate(update, deps) {
     if (!isNew) log(lead, now, "\u041A\u043B\u0438\u0435\u043D\u0442 \u043D\u0430\u0447\u0430\u043B \u0430\u043D\u043A\u0435\u0442\u0443 \u0437\u0430\u043D\u043E\u0432\u043E");
     lead.step = "name";
     await store.put(lead);
-    await send(TEXT.greeting, KB_REMOVE);
+    if (deps.appUrl) await send(TEXT.greetingApp, kbApp(deps.appUrl));
+    else await send(TEXT.greeting);
+    await send(TEXT.askName, KB_REMOVE);
     return;
   }
   if (!text) {
@@ -547,7 +594,6 @@ async function handleUpdate(update, deps) {
     if (lead.step === "place") {
       setField(lead, now, "birth_place", "\u041C\u0435\u0441\u0442\u043E \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F", parseBirthPlace(text));
       setStage(lead, now, FORM_DONE);
-      lead.step = "done";
       await store.put(lead);
       await send(TEXT.counting(lead.first_name));
       await tg("sendChatAction", { chat_id: chatId, action: "typing" });
@@ -556,13 +602,9 @@ async function handleUpdate(update, deps) {
         { now, upsell: deps.upsell ?? BOT_UPSELL }
       );
       await send(result.text, KB_DONE);
-      setField(lead, now, "zodiac", "\u0417\u043D\u0430\u043A \u0437\u043E\u0434\u0438\u0430\u043A\u0430", result.data.zodiac);
-      setField(lead, now, "life_path_number", "\u0427\u0438\u0441\u043B\u043E \u0441\u0443\u0434\u044C\u0431\u044B", result.data.life_path_number);
-      lead.forecast_sent = true;
-      log(lead, now, "\u041F\u043E\u043B\u0435 \xAB\u041F\u0440\u043E\u0433\u043D\u043E\u0437 \u0432\u044B\u0434\u0430\u043D\xBB = \u0414\u0430");
-      setStage(lead, now, FREE_FORECAST);
+      recordForecast(lead, result, now, "\u0447\u0430\u0442");
       await store.put(lead);
-      await notifyAdmin("\u2728 \u041D\u043E\u0432\u044B\u0439 \u043B\u0438\u0434: \u0432\u044B\u0434\u0430\u043D \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437", lead);
+      await notifyAdmin(NOTIFY.forecast("\u0447\u0430\u0442"), lead);
       return;
     }
   } catch (e) {
@@ -571,11 +613,10 @@ async function handleUpdate(update, deps) {
     return;
   }
   if (/разбор|хочу/i.test(text)) {
-    const already = lead.stage === WANTS_FULL;
-    setStage(lead, now, WANTS_FULL);
+    const first = recordWantsFull(lead, now);
     await store.put(lead);
     await send(TEXT.wantsFull, KB_DONE);
-    if (!already) await notifyAdmin("\u{1F525} \u0413\u043E\u0440\u044F\u0447\u0438\u0439 \u043B\u0438\u0434: \u0445\u043E\u0447\u0435\u0442 \u043F\u043E\u043B\u043D\u044B\u0439 \u0440\u0430\u0437\u0431\u043E\u0440", lead);
+    if (first) await notifyAdmin(NOTIFY.wantsFull, lead);
     return;
   }
   await send(TEXT.afterForecast, KB_DONE);
@@ -640,19 +681,757 @@ function renderCrmPage(leads, { timeZone = "Europe/Moscow" } = {}) {
 }
 __name(renderCrmPage, "renderCrmPage");
 
+// src/miniapp-page.js
+var miniapp_page_default = `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<script src="https://telegram.org/js/telegram-web-app.js?64"><\/script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>\u0410\u0441\u0442\u0440\u0430 \u2014 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols&text=%E2%99%88%E2%99%89%E2%99%8A%E2%99%8B%E2%99%8C%E2%99%8D%E2%99%8E%E2%99%8F%E2%99%90%E2%99%91%E2%99%92%E2%99%93&display=block">
+<style>
+  /* \u0422\u0451\u043C\u043D\u0430\u044F \xAB\u043D\u043E\u0447\u043D\u0430\u044F\xBB \u0442\u0435\u043C\u0430 \u2014 \u043E\u0441\u043E\u0437\u043D\u0430\u043D\u043D\u044B\u0439 \u0435\u0434\u0438\u043D\u044B\u0439 \u043E\u0431\u0440\u0430\u0437 \u0431\u0440\u0435\u043D\u0434\u0430, \u043D\u0435 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u043E\u0442 \u0442\u0435\u043C\u044B Telegram.
+     \u041F\u0430\u043B\u0438\u0442\u0440\u0430: \u0444\u0438\u043E\u043B\u0435\u0442\u043E\u0432\u044B\u0439 + \u0442\u0451\u043F\u043B\u043E\u0435 \u0437\u043E\u043B\u043E\u0442\u043E; \u0441\u0442\u0438\u043B\u044C: \u0441\u0442\u0435\u043A\u043B\u044F\u043D\u043D\u044B\u0435 \u043A\u0430\u0440\u0442\u043E\u0447\u043A\u0438 \u043F\u043E\u0432\u0435\u0440\u0445 \u0437\u0432\u0451\u0437\u0434\u043D\u043E\u0433\u043E \u043D\u0435\u0431\u0430. */
+  :root {
+    --bg: #0B0A1A;
+    --bg-raise: #15122E;
+    --glass: rgba(255, 255, 255, 0.055);
+    --glass-strong: rgba(255, 255, 255, 0.085);
+    --glass-border: rgba(255, 255, 255, 0.13);
+    --ink: #F4F0FF;
+    --muted: #B9B1D9;
+    --gold: #E6C27A;
+    --gold-soft: rgba(230, 194, 122, 0.14);
+    --on-gold: #1B1405;
+    --violet: #9D82FF;
+    --violet-soft: rgba(157, 130, 255, 0.16);
+    --danger: #FF9C9C;
+    --font-display: "Cormorant", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --font-body: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-glyph: "Noto Sans Symbols", "Segoe UI Symbol", "Apple Symbols", sans-serif;
+    --radius: 20px;
+    --ease-out: cubic-bezier(.22, .8, .24, 1);
+    --top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px));
+    --bottom: calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px));
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background:
+      radial-gradient(120% 60% at 85% -10%, rgba(157, 130, 255, 0.22), transparent 60%),
+      radial-gradient(90% 50% at -10% 30%, rgba(230, 194, 122, 0.08), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--ink);
+    font: 16px/1.55 var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #sky { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  .app {
+    position: relative; z-index: 1;
+    max-width: 480px; margin: 0 auto;
+    padding-top: max(calc(var(--top) + 20px), calc(env(safe-area-inset-top, 0px) + 20px));
+    padding-bottom: max(calc(var(--bottom) + 28px), calc(env(safe-area-inset-bottom, 0px) + 28px));
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+  }
+  .screen { display: grid; gap: 20px; }
+  .screen[hidden] { display: none; }
+
+  /* ---------- \u0422\u0438\u043F\u043E\u0433\u0440\u0430\u0444\u0438\u043A\u0430 ---------- */
+  .eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+  h1, h2 { font-family: var(--font-display); font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: .005em; }
+  h1 { font-size: clamp(34px, 9.5vw, 42px); line-height: 1.05; }
+  h2 { font-size: 26px; line-height: 1.15; }
+  .lead { margin: 0; color: var(--muted); font-size: 15px; }
+  p { margin: 0; }
+
+  /* ---------- Hero ---------- */
+  .hero { display: grid; justify-items: center; text-align: center; gap: 10px; padding-top: 4px; }
+  .wheel { width: min(64vw, 230px); aspect-ratio: 1; max-width: 100%; margin-bottom: 6px; }
+  .wheel .ring { animation: spin 120s linear infinite; transform-origin: 50% 50%; }
+  .wheel text { font-family: var(--font-glyph); font-size: 13px; fill: var(--gold); text-anchor: middle; dominant-baseline: central; }
+  .wheel .core { font-family: var(--font-display); font-size: 30px; font-weight: 600; fill: var(--ink); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- \u0421\u0442\u0435\u043A\u043B\u044F\u043D\u043D\u044B\u0435 \u043A\u0430\u0440\u0442\u043E\u0447\u043A\u0438 ---------- */
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  /* ---------- \u0424\u043E\u0440\u043C\u0430 ---------- */
+  form { display: grid; gap: 18px; padding: 22px 18px 18px; }
+  .field { display: grid; gap: 7px; }
+  label { font-size: 14px; font-weight: 600; }
+  input {
+    width: 100%; min-height: 52px;
+    padding: 13px 16px;
+    font: 500 16px/1.3 var(--font-body);
+    color: var(--ink);
+    background: rgba(8, 7, 22, 0.55);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease;
+    -webkit-appearance: none; appearance: none;
+  }
+  input::placeholder { color: rgba(185, 177, 217, 0.6); }
+  input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+  input[aria-invalid="true"] { border-color: var(--danger); }
+  input[type="date"] { color-scheme: dark; }
+  input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+  input[type="date"]:invalid:not(:focus) { color: rgba(185, 177, 217, 0.6); }
+  .hint { font-size: 13px; color: var(--muted); }
+  .error { font-size: 13.5px; color: var(--danger); display: flex; gap: 6px; align-items: flex-start; }
+  .error[hidden] { display: none; }
+  .error svg { flex: none; margin-top: 2px; }
+  .consent { font-size: 12.5px; color: var(--muted); text-align: center; }
+  .form-error { text-align: center; justify-content: center; }
+
+  /* ---------- \u041A\u043D\u043E\u043F\u043A\u0438 ---------- */
+  button { font: inherit; cursor: pointer; }
+  .cta {
+    position: relative; overflow: hidden;
+    min-height: 56px; width: 100%;
+    border: 0; border-radius: 16px;
+    background: linear-gradient(180deg, #F0D394, var(--gold));
+    color: var(--on-gold);
+    font-size: 16.5px; font-weight: 700; letter-spacing: .01em;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 10px 30px -10px rgba(230, 194, 122, 0.55);
+    transition: transform .12s ease, filter .12s ease;
+  }
+  .cta:active { transform: scale(.985); filter: brightness(.95); }
+  .cta:disabled { cursor: default; filter: saturate(.6) brightness(.85); }
+  .cta::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%);
+    transform: translateX(-120%);
+    animation: shine 4.5s ease-in-out 1.2s infinite;
+  }
+  @keyframes shine { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+  .ghost {
+    min-height: 52px; width: 100%;
+    border: 1px solid var(--glass-border); border-radius: 16px;
+    background: transparent; color: var(--ink);
+    font-size: 15px; font-weight: 600;
+    transition: background-color .15s ease;
+  }
+  .ghost:active { background: var(--glass); }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  input:focus-visible { outline: none; }
+
+  /* ---------- \u0420\u0430\u0441\u0447\u0451\u0442 ---------- */
+  .loading { min-height: 70vh; display: grid; place-content: center; justify-items: center; text-align: center; gap: 26px; }
+  .orbit { position: relative; width: 168px; height: 168px; }
+  .orbit span { position: absolute; inset: 0; border-radius: 50%; border: 1px solid var(--glass-border); }
+  .orbit span:nth-child(2) { inset: 26px; }
+  .orbit span:nth-child(3) { inset: 52px; background: radial-gradient(circle, rgba(230,194,122,.55), rgba(230,194,122,0) 70%); border: 0; animation: pulse 1.8s ease-in-out infinite; }
+  .orbit i { position: absolute; inset: 0; animation: spin 2.4s linear infinite; }
+  .orbit i:nth-of-type(2) { inset: 26px; animation-duration: 1.6s; animation-direction: reverse; }
+  .orbit i::before { content: ""; position: absolute; top: -5px; left: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 14px 3px rgba(230,194,122,.7); }
+  .orbit i:nth-of-type(2)::before { background: var(--violet); box-shadow: 0 0 14px 3px rgba(157,130,255,.7); }
+  @keyframes pulse { 50% { transform: scale(1.18); opacity: .7; } }
+  .steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 14.5px; color: var(--muted); }
+  .steps li { transition: color .3s ease, opacity .3s ease; opacity: .45; }
+  .steps li.on { color: var(--ink); opacity: 1; }
+  .steps li.done { opacity: .8; }
+
+  /* ---------- \u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 ---------- */
+  .result-head { display: grid; gap: 8px; }
+  .sign {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center;
+    padding: 20px 18px;
+    background: linear-gradient(135deg, rgba(157,130,255,.16), rgba(230,194,122,.08)), var(--glass);
+  }
+  .glyph {
+    width: 84px; height: 84px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--font-glyph); font-size: 44px; line-height: 1; color: var(--gold);
+    background: radial-gradient(circle at 50% 40%, rgba(230,194,122,.20), rgba(230,194,122,.02) 70%);
+    border: 1px solid rgba(230,194,122,.35);
+    text-shadow: 0 0 18px rgba(230,194,122,.55);
+  }
+  .sign-name { font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.05; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 12.5px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: var(--glass-strong); border: 1px solid var(--glass-border); color: var(--ink); white-space: nowrap; }
+
+  .numbers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .num { padding: 14px 14px 12px; display: grid; gap: 2px; }
+  .num b { font-family: var(--font-display); font-size: 38px; font-weight: 600; line-height: 1; color: var(--gold); font-variant-numeric: lining-nums tabular-nums; }
+  .num span { font-size: 13px; color: var(--muted); }
+
+  .card { padding: 18px; display: grid; gap: 10px; }
+  .card-head { display: flex; align-items: center; gap: 12px; }
+  .icon { width: 38px; height: 38px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--violet-soft); color: var(--violet); }
+  .icon svg { width: 20px; height: 20px; }
+  .card h3 { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.25; }
+  .card h3 small { display: block; font-size: 12.5px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .card p { font-size: 15px; color: #E3DDF7; }
+
+  .upsell { padding: 22px 18px 18px; display: grid; gap: 14px; border-color: rgba(230,194,122,.4); background: linear-gradient(160deg, rgba(230,194,122,.12), rgba(157,130,255,.06)), var(--glass); }
+  .upsell ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .upsell li { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; }
+  .upsell li svg { flex: none; color: var(--gold); margin-top: 3px; }
+  .success { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; background: var(--gold-soft); color: var(--ink); font-size: 14.5px; }
+  .success[hidden] { display: none; }
+  .success svg { flex: none; color: var(--gold); }
+  .saved, .disclaimer { font-size: 12.5px; color: var(--muted); text-align: center; }
+
+  /* \u041F\u043E\u044F\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u0430\u0440\u0442\u043E\u0447\u0435\u043A \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0430 */
+  .reveal { opacity: 0; transform: translateY(14px); }
+  .revealed .reveal { opacity: 1; transform: none; transition: opacity .5s var(--ease-out), transform .5s var(--ease-out); transition-delay: calc(var(--i, 0) * 70ms); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wheel .ring, .orbit i, .orbit span, .cta::after { animation: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    .revealed .reveal { transition: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<main class="app">
+  <!-- \u042D\u043A\u0440\u0430\u043D 1: \u0430\u043D\u043A\u0435\u0442\u0430 -->
+  <section class="screen" id="screen-form" aria-labelledby="form-title">
+    <div class="hero">
+      <svg class="wheel" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#E6C27A" stop-opacity=".28"/>
+            <stop offset="1" stop-color="#E6C27A" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="58" fill="url(#glow)"/>
+        <g class="ring" id="ring">
+          <circle cx="100" cy="100" r="94" fill="none" stroke="rgba(230,194,122,.55)" stroke-width="1"/>
+          <circle cx="100" cy="100" r="72" fill="none" stroke="rgba(230,194,122,.35)" stroke-width="1"/>
+        </g>
+        <circle cx="100" cy="100" r="44" fill="none" stroke="rgba(157,130,255,.45)" stroke-width="1" stroke-dasharray="2 5"/>
+        <text class="core" x="100" y="102">\u2736</text>
+      </svg>
+      <p class="eyebrow">\u0411\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437</p>
+      <h1 id="form-title">\u0427\u0442\u043E \u0437\u0432\u0451\u0437\u0434\u044B \u0433\u043E\u0432\u043E\u0440\u044F\u0442 \u043E \u0432\u0430\u0441</h1>
+      <p class="lead">\u0417\u043D\u0430\u043A \u0437\u043E\u0434\u0438\u0430\u043A\u0430, \u043D\u0443\u043C\u0435\u0440\u043E\u043B\u043E\u0433\u0438\u044F \u0438\u043C\u0435\u043D\u0438 \u0438 \u0434\u0430\u0442\u044B \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F, \u044D\u043D\u0435\u0440\u0433\u0438\u044F \u043C\u0435\u0441\u0442\u0430, \u0433\u0434\u0435 \u0432\u044B \u0440\u043E\u0434\u0438\u043B\u0438\u0441\u044C, \u2014 \u0438 \u0441\u043E\u0432\u0435\u0442 \u043D\u0430 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0434\u043D\u0438.</p>
+    </div>
+
+    <form id="form" class="glass" novalidate>
+      <div class="field">
+        <label for="name">\u041F\u043E\u043B\u043D\u043E\u0435 \u0438\u043C\u044F</label>
+        <input id="name" name="name" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="\u0418\u0432\u0430\u043D\u043E\u0432\u0430 \u041C\u0430\u0440\u0438\u044F \u041F\u0435\u0442\u0440\u043E\u0432\u043D\u0430" aria-describedby="name-hint name-error">
+        <p class="hint" id="name-hint">\u0424\u0430\u043C\u0438\u043B\u0438\u044F, \u0438\u043C\u044F \u0438 \u043E\u0442\u0447\u0435\u0441\u0442\u0432\u043E \u2014 \u043F\u043E \u043D\u0438\u043C \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0447\u0438\u0441\u043B\u043E \u0438\u043C\u0435\u043D\u0438</p>
+        <p class="error" id="name-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="birth_date">\u0414\u0430\u0442\u0430 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F</label>
+        <input id="birth_date" name="birth_date" type="date" autocomplete="bday" min="1900-01-01" required aria-describedby="birth_date-error">
+        <p class="error" id="birth_date-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="birth_place">\u041C\u0435\u0441\u0442\u043E \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F</label>
+        <input id="birth_place" name="birth_place" list="cities" autocomplete="off" autocapitalize="words" enterkeyhint="go" placeholder="\u041A\u0430\u0437\u0430\u043D\u044C" aria-describedby="birth_place-hint birth_place-error">
+        <p class="hint" id="birth_place-hint">\u0413\u043E\u0440\u043E\u0434 \u0438\u043B\u0438 \u043F\u043E\u0441\u0451\u043B\u043E\u043A. \u0415\u0441\u043B\u0438 \u043D\u0435 \u0437\u043D\u0430\u0435\u0442\u0435 \u0442\u043E\u0447\u043D\u043E \u2014 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0439 \u043A\u0440\u0443\u043F\u043D\u044B\u0439 \u0433\u043E\u0440\u043E\u0434</p>
+        <p class="error" id="birth_place-error" hidden></p>
+      </div>
+      <datalist id="cities"></datalist>
+      <button class="cta" type="submit" id="submit">\u0423\u0437\u043D\u0430\u0442\u044C \u043F\u0440\u043E\u0433\u043D\u043E\u0437</button>
+      <p class="error form-error" id="form-error" role="alert" hidden></p>
+      <p class="consent">\u041D\u0430\u0436\u0438\u043C\u0430\u044F \u043A\u043D\u043E\u043F\u043A\u0443, \u0432\u044B \u0441\u043E\u0433\u043B\u0430\u0448\u0430\u0435\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u044D\u0442\u0438 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u044B \u0434\u043B\u044F \u0441\u043E\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u043F\u0440\u043E\u0433\u043D\u043E\u0437\u0430.</p>
+    </form>
+  </section>
+
+  <!-- \u042D\u043A\u0440\u0430\u043D 2: \u0440\u0430\u0441\u0447\u0451\u0442 -->
+  <section class="screen loading" id="screen-loading" hidden aria-live="polite">
+    <div class="orbit" aria-hidden="true"><span></span><span></span><span></span><i></i><i></i></div>
+    <h2>\u0421\u0447\u0438\u0442\u044B\u0432\u0430\u044E \u0432\u0430\u0448\u0443 \u043A\u0430\u0440\u0442\u0443</h2>
+    <ul class="steps" id="steps">
+      <li>\u041E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u044E \u0437\u043D\u0430\u043A \u0437\u043E\u0434\u0438\u0430\u043A\u0430</li>
+      <li>\u0421\u0447\u0438\u0442\u0430\u044E \u0447\u0438\u0441\u043B\u043E \u0441\u0443\u0434\u044C\u0431\u044B \u0438 \u0447\u0438\u0441\u043B\u043E \u0438\u043C\u0435\u043D\u0438</li>
+      <li>\u0427\u0438\u0442\u0430\u044E \u044D\u043D\u0435\u0440\u0433\u0438\u044E \u043C\u0435\u0441\u0442\u0430 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F</li>
+    </ul>
+  </section>
+
+  <!-- \u042D\u043A\u0440\u0430\u043D 3: \u043F\u0440\u043E\u0433\u043D\u043E\u0437 -->
+  <section class="screen" id="screen-result" hidden aria-labelledby="result-title" tabindex="-1">
+    <div class="result-head reveal" style="--i:0">
+      <p class="eyebrow">\u0412\u0430\u0448 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u0433\u043E\u0442\u043E\u0432</p>
+      <h1 id="result-title"></h1>
+    </div>
+
+    <div class="sign glass reveal" style="--i:1">
+      <div class="glyph" id="glyph" aria-hidden="true"></div>
+      <div>
+        <p class="eyebrow" style="color:var(--muted)">\u0417\u043D\u0430\u043A \u0437\u043E\u0434\u0438\u0430\u043A\u0430</p>
+        <p class="sign-name" id="sign-name"></p>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+
+    <div class="numbers" id="numbers"></div>
+
+    <article class="card glass reveal" style="--i:6">
+      <div class="card-head">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/></svg></span>
+        <h3>\u0412\u0430\u0448 \u0445\u0430\u0440\u0430\u043A\u0442\u0435\u0440</h3>
+      </div>
+      <p id="character"></p>
+    </article>
+
+    <article class="card glass reveal" style="--i:7">
+      <div class="card-head">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
+        <h3>\u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 3 \u043C\u0435\u0441\u044F\u0446\u0430<small id="period-label"></small></h3>
+      </div>
+      <p id="period"></p>
+    </article>
+
+    <article class="card glass reveal" style="--i:8">
+      <div class="card-head">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <h3>\u041C\u0435\u0441\u0442\u043E \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F<small id="place-name"></small></h3>
+      </div>
+      <p id="place"></p>
+    </article>
+
+    <article class="card glass reveal" style="--i:9">
+      <div class="card-head">
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.8 5.41a2 2 0 0 1-1.27 1.27L7.76 16.24l1.8-5.41a2 2 0 0 1 1.27-1.27z"/></svg></span>
+        <h3>\u0421\u043E\u0432\u0435\u0442 \u043D\u0430 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0434\u043D\u0438</h3>
+      </div>
+      <p id="advice"></p>
+    </article>
+
+    <section class="upsell glass reveal" style="--i:10" aria-labelledby="upsell-title">
+      <p class="eyebrow">\u042D\u0442\u043E \u043A\u043E\u0440\u043E\u0442\u043A\u0430\u044F \u0432\u0435\u0440\u0441\u0438\u044F</p>
+      <h2 id="upsell-title">\u041F\u043E\u043B\u043D\u044B\u0439 \u0440\u0430\u0437\u0431\u043E\u0440 \u043D\u0430 12 \u043C\u0435\u0441\u044F\u0446\u0435\u0432</h2>
+      <ul>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>\u041F\u0440\u043E\u0433\u043D\u043E\u0437 \u043F\u043E \u043A\u0430\u0436\u0434\u043E\u043C\u0443 \u043C\u0435\u0441\u044F\u0446\u0443 \u0433\u043E\u0434\u0430</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>\u041B\u044E\u0431\u043E\u0432\u044C \u0438 \u0441\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u043C\u043E\u0441\u0442\u044C</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>\u0414\u0435\u043D\u044C\u0433\u0438 \u0438 \u043F\u0440\u0435\u0434\u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>\u0411\u043B\u0430\u0433\u043E\u043F\u0440\u0438\u044F\u0442\u043D\u044B\u0435 \u0434\u0430\u0442\u044B \u0434\u043B\u044F \u0432\u0430\u0436\u043D\u044B\u0445 \u0440\u0435\u0448\u0435\u043D\u0438\u0439</li>
+      </ul>
+      <button class="cta" type="button" id="full">\u0425\u043E\u0447\u0443 \u043F\u043E\u043B\u043D\u044B\u0439 \u0440\u0430\u0437\u0431\u043E\u0440</button>
+      <div class="success" id="full-done" role="status" hidden>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.5 2.5L16 9.5"/></svg>
+        <span id="full-done-text">\u0417\u0430\u044F\u0432\u043A\u0430 \u043F\u0440\u0438\u043D\u044F\u0442\u0430. \u0410\u0441\u0442\u0440\u043E\u043B\u043E\u0433 \u043D\u0430\u043F\u0438\u0448\u0435\u0442 \u0432\u0430\u043C \u0432 Telegram \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 \u0434\u043D\u044F.</span>
+      </div>
+    </section>
+
+    <p class="saved reveal" style="--i:11" id="saved" hidden>\u041F\u0440\u043E\u0433\u043D\u043E\u0437 \u0442\u0430\u043A\u0436\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u0451\u043D \u0432 \u0447\u0430\u0442\u0435 \u0441 \u0431\u043E\u0442\u043E\u043C.</p>
+    <button class="ghost reveal" style="--i:11" type="button" id="again">\u0421\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u0434\u043B\u044F \u0431\u043B\u0438\u0437\u043A\u043E\u0433\u043E \u0447\u0435\u043B\u043E\u0432\u0435\u043A\u0430</button>
+    <p class="disclaimer">\u041F\u0440\u043E\u0433\u043D\u043E\u0437 \u043D\u043E\u0441\u0438\u0442 \u0440\u0430\u0437\u0432\u043B\u0435\u043A\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u0445\u0430\u0440\u0430\u043A\u0442\u0435\u0440.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const inTelegram = Boolean(tg && tg.initData);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (id) => document.getElementById(id);
+
+  const ZODIAC = ['\u2648', '\u2649', '\u264A', '\u264B', '\u264C', '\u264D', '\u264E', '\u264F', '\u2650', '\u2651', '\u2652', '\u2653'];
+  const TEXT_VS = '\uFE0E'; // \u0441\u0438\u043C\u0432\u043E\u043B, \u0430 \u043D\u0435 \u0446\u0432\u0435\u0442\u043D\u043E\u0439 \u044D\u043C\u043E\u0434\u0437\u0438
+  const CITIES = ['\u041C\u043E\u0441\u043A\u0432\u0430', '\u0421\u0430\u043D\u043A\u0442-\u041F\u0435\u0442\u0435\u0440\u0431\u0443\u0440\u0433', '\u041D\u043E\u0432\u043E\u0441\u0438\u0431\u0438\u0440\u0441\u043A', '\u0415\u043A\u0430\u0442\u0435\u0440\u0438\u043D\u0431\u0443\u0440\u0433', '\u041A\u0430\u0437\u0430\u043D\u044C', '\u041D\u0438\u0436\u043D\u0438\u0439 \u041D\u043E\u0432\u0433\u043E\u0440\u043E\u0434', '\u0427\u0435\u043B\u044F\u0431\u0438\u043D\u0441\u043A', '\u0421\u0430\u043C\u0430\u0440\u0430', '\u041E\u043C\u0441\u043A', '\u0420\u043E\u0441\u0442\u043E\u0432-\u043D\u0430-\u0414\u043E\u043D\u0443', '\u0423\u0444\u0430', '\u041A\u0440\u0430\u0441\u043D\u043E\u044F\u0440\u0441\u043A', '\u0412\u043E\u0440\u043E\u043D\u0435\u0436', '\u041F\u0435\u0440\u043C\u044C', '\u0412\u043E\u043B\u0433\u043E\u0433\u0440\u0430\u0434', '\u041A\u0440\u0430\u0441\u043D\u043E\u0434\u0430\u0440', '\u0421\u0430\u0440\u0430\u0442\u043E\u0432', '\u0422\u044E\u043C\u0435\u043D\u044C', '\u0422\u043E\u043B\u044C\u044F\u0442\u0442\u0438', '\u0418\u0436\u0435\u0432\u0441\u043A', '\u0411\u0430\u0440\u043D\u0430\u0443\u043B', '\u0418\u0440\u043A\u0443\u0442\u0441\u043A', '\u0423\u043B\u044C\u044F\u043D\u043E\u0432\u0441\u043A', '\u0425\u0430\u0431\u0430\u0440\u043E\u0432\u0441\u043A', '\u042F\u0440\u043E\u0441\u043B\u0430\u0432\u043B\u044C', '\u0412\u043B\u0430\u0434\u0438\u0432\u043E\u0441\u0442\u043E\u043A', '\u041C\u0430\u0445\u0430\u0447\u043A\u0430\u043B\u0430', '\u0422\u043E\u043C\u0441\u043A', '\u041E\u0440\u0435\u043D\u0431\u0443\u0440\u0433', '\u041A\u0435\u043C\u0435\u0440\u043E\u0432\u043E', '\u041D\u043E\u0432\u043E\u043A\u0443\u0437\u043D\u0435\u0446\u043A', '\u0420\u044F\u0437\u0430\u043D\u044C', '\u0410\u0441\u0442\u0440\u0430\u0445\u0430\u043D\u044C', '\u041F\u0435\u043D\u0437\u0430', '\u041B\u0438\u043F\u0435\u0446\u043A', '\u041A\u0430\u043B\u0438\u043D\u0438\u043D\u0433\u0440\u0430\u0434', '\u0422\u0443\u043B\u0430', '\u0421\u043E\u0447\u0438', '\u041C\u0438\u043D\u0441\u043A', '\u0410\u043B\u043C\u0430\u0442\u044B', '\u0410\u0441\u0442\u0430\u043D\u0430', '\u0422\u0430\u0448\u043A\u0435\u043D\u0442', '\u0411\u0438\u0448\u043A\u0435\u043A', '\u0415\u0440\u0435\u0432\u0430\u043D', '\u0411\u0430\u043A\u0443', '\u0422\u0431\u0438\u043B\u0438\u0441\u0438'];
+
+  // ---------- Telegram ----------
+  const haptic = (kind, style) => {
+    try {
+      if (!tg || !tg.HapticFeedback) return;
+      if (kind === 'impact') tg.HapticFeedback.impactOccurred(style || 'light');
+      else tg.HapticFeedback.notificationOccurred(kind);
+    } catch (e) { /* \u0441\u0442\u0430\u0440\u044B\u0435 \u043A\u043B\u0438\u0435\u043D\u0442\u044B Telegram */ }
+  };
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    try {
+      tg.setHeaderColor('#0B0A1A');
+      tg.setBackgroundColor('#0B0A1A');
+      if (tg.isVersionAtLeast('7.10')) tg.setBottomBarColor('#0B0A1A');
+      if (tg.isVersionAtLeast('7.7')) tg.disableVerticalSwipes();
+    } catch (e) { /* \u043C\u0435\u0442\u043E\u0434\u044B \u0435\u0441\u0442\u044C \u043D\u0435 \u0432\u043E \u0432\u0441\u0435\u0445 \u0432\u0435\u0440\u0441\u0438\u044F\u0445 */ }
+  }
+
+  // ---------- \u0417\u0432\u0451\u0437\u0434\u043D\u043E\u0435 \u043D\u0435\u0431\u043E ----------
+  const sky = $('sky');
+  const ctx = sky.getContext('2d');
+  let stars = [];
+  function resizeSky() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    sky.width = innerWidth * dpr;
+    sky.height = innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const count = Math.round((innerWidth * innerHeight) / 5200);
+    stars = Array.from({ length: count }, () => ({
+      x: Math.random() * innerWidth,
+      y: Math.random() * innerHeight,
+      r: Math.random() < 0.12 ? 1.4 : Math.random() * 0.9 + 0.3,
+      a: Math.random() * 0.6 + 0.25,
+      s: Math.random() * 0.0016 + 0.0004,
+      p: Math.random() * Math.PI * 2,
+      gold: Math.random() < 0.15,
+    }));
+    drawSky(0);
+  }
+  function drawSky(t) {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const st of stars) {
+      const alpha = reduceMotion ? st.a : st.a * (0.55 + 0.45 * Math.sin(t * st.s + st.p));
+      ctx.fillStyle = st.gold ? \`rgba(240, 211, 148, \${alpha})\` : \`rgba(235, 230, 255, \${alpha})\`;
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  function loop(t) {
+    if (!document.hidden) drawSky(t);
+    requestAnimationFrame(loop);
+  }
+  addEventListener('resize', resizeSky);
+  resizeSky();
+  if (!reduceMotion) requestAnimationFrame(loop);
+
+  // ---------- \u0417\u043E\u0434\u0438\u0430\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u043A\u0440\u0443\u0433 ----------
+  const ring = $('ring');
+  ZODIAC.forEach((g, i) => {
+    const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const a2 = angle + Math.PI / 12;
+    tick.setAttribute('x1', 100 + Math.cos(a2) * 72); tick.setAttribute('y1', 100 + Math.sin(a2) * 72);
+    tick.setAttribute('x2', 100 + Math.cos(a2) * 94); tick.setAttribute('y2', 100 + Math.sin(a2) * 94);
+    tick.setAttribute('stroke', 'rgba(230,194,122,.3)');
+    ring.append(tick);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', 100 + Math.cos(angle) * 83);
+    text.setAttribute('y', 100 + Math.sin(angle) * 83);
+    text.textContent = g + TEXT_VS;
+    ring.append(text);
+  });
+
+  // ---------- \u0424\u043E\u0440\u043C\u0430 ----------
+  $('cities').append(...CITIES.map((c) => Object.assign(document.createElement('option'), { value: c })));
+  const dateInput = $('birth_date');
+  dateInput.max = new Date().toISOString().slice(0, 10);
+
+  const FIELDS = ['name', 'birth_date', 'birth_place'];
+  const ERROR_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5v.01"/></svg>';
+
+  function setError(field, message) {
+    const input = $(field);
+    const box = $(\`\${field}-error\`);
+    if (message) {
+      box.innerHTML = ERROR_ICON;
+      box.append(document.createTextNode(message));
+      box.hidden = false;
+      input.setAttribute('aria-invalid', 'true');
+    } else {
+      box.hidden = true;
+      input.removeAttribute('aria-invalid');
+    }
+  }
+
+  // \u0411\u044B\u0441\u0442\u0440\u044B\u0435 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 \u0432 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435; \u043E\u043A\u043E\u043D\u0447\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u0434\u0430\u043D\u043D\u044B\u0435 \u043F\u0440\u043E\u0432\u0435\u0440\u044F\u0435\u0442 \u0441\u0435\u0440\u0432\u0435\u0440.
+  function check(field) {
+    const v = $(field).value.trim();
+    if (field === 'name') {
+      const words = v.split(/\\s+/).filter(Boolean);
+      if (!v) return '\u041D\u0430\u043F\u0438\u0448\u0438\u0442\u0435, \u043A\u0430\u043A \u0432\u0430\u0441 \u0437\u043E\u0432\u0443\u0442';
+      if (words.length < 2) return '\u0414\u043E\u0431\u0430\u0432\u044C\u0442\u0435 \u0444\u0430\u043C\u0438\u043B\u0438\u044E \u2014 \u0434\u043B\u044F \u0442\u043E\u0447\u043D\u043E\u0433\u043E \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u043D\u0443\u0436\u043D\u043E \u043F\u043E\u043B\u043D\u043E\u0435 \u0438\u043C\u044F';
+      if (!/^[a-z\u0430-\u044F\u0451\\s'-]+$/i.test(v)) return '\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0442\u043E\u043B\u044C\u043A\u043E \u0431\u0443\u043A\u0432\u044B';
+    }
+    if (field === 'birth_date') {
+      if (!v) return '\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0430\u0442\u0443 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F';
+      if (v > dateInput.max || v < dateInput.min) return '\u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0434\u0430\u0442\u0443: \u043F\u043E\u0445\u043E\u0436\u0435, \u0432 \u043D\u0435\u0439 \u043E\u043F\u0435\u0447\u0430\u0442\u043A\u0430';
+    }
+    if (field === 'birth_place' && v.length < 2) return '\u041D\u0430\u043F\u0438\u0448\u0438\u0442\u0435 \u0433\u043E\u0440\u043E\u0434, \u0433\u0434\u0435 \u0432\u044B \u0440\u043E\u0434\u0438\u043B\u0438\u0441\u044C';
+    return '';
+  }
+
+  FIELDS.forEach((f) => {
+    const input = $(f);
+    input.addEventListener('blur', () => { if (input.value) setError(f, check(f)); });
+    input.addEventListener('input', () => { if (input.getAttribute('aria-invalid')) setError(f, check(f)); });
+  });
+  $('name').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); dateInput.focus(); } });
+
+  // ---------- \u042D\u043A\u0440\u0430\u043D\u044B ----------
+  const screens = { form: $('screen-form'), loading: $('screen-loading'), result: $('screen-result') };
+  function show(name) {
+    Object.entries(screens).forEach(([k, el]) => { el.hidden = k !== name; });
+    window.scrollTo(0, 0);
+    if (tg && tg.BackButton) {
+      if (name === 'result') tg.BackButton.show(); else tg.BackButton.hide();
+    }
+  }
+  if (tg && tg.BackButton) tg.BackButton.onClick(() => show('form'));
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function playSteps() {
+    const items = [...$('steps').children];
+    items.forEach((li) => li.classList.remove('on', 'done'));
+    for (const li of items) {
+      li.classList.add('on');
+      await wait(650);
+      li.classList.remove('on');
+      li.classList.add('done');
+    }
+  }
+
+  async function api(path, payload) {
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: inTelegram ? tg.initData : '', ...payload }),
+    });
+    const data = await res.json().catch(() => ({ ok: false }));
+    return { status: res.status, data };
+  }
+
+  function render(r) {
+    const s = r.sections;
+    $('result-title').textContent = \`\${r.data.first_name}, \u0432\u043E\u0442 \u0447\u0442\u043E \u0433\u043E\u0432\u043E\u0440\u044F\u0442 \u0437\u0432\u0451\u0437\u0434\u044B\`;
+    $('glyph').textContent = s.sign.glyph + TEXT_VS;
+    $('sign-name').textContent = s.sign.name;
+    $('chips').replaceChildren(...[\`\u0421\u0442\u0438\u0445\u0438\u044F: \${s.sign.element}\`, \`\u041F\u043B\u0430\u043D\u0435\u0442\u0430: \${s.sign.planet}\`, s.eastern].map((t) => {
+      const c = document.createElement('span');
+      c.className = 'chip';
+      c.textContent = t;
+      return c;
+    }));
+    $('numbers').replaceChildren(...s.numbers.map((n, i) => {
+      const el = document.createElement('div');
+      el.className = 'num glass reveal';
+      el.style.setProperty('--i', 2 + i);
+      const b = document.createElement('b');
+      b.textContent = n.value;
+      const span = document.createElement('span');
+      span.textContent = n.label;
+      el.append(b, span);
+      return el;
+    }));
+    $('character').textContent = s.character;
+    $('period-label').textContent = s.period.label;
+    $('period').textContent = s.period.text;
+    $('place-name').textContent = s.place.name;
+    $('place').textContent = s.place.text;
+    $('advice').textContent = s.advice;
+    $('saved').hidden = !r.saved;
+    $('full').hidden = false;
+    $('full').disabled = false;
+    $('full-done').hidden = true;
+  }
+
+  const submit = $('submit');
+  $('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('form-error').hidden = true;
+    const errors = FIELDS.map((f) => [f, check(f)]);
+    errors.forEach(([f, m]) => setError(f, m));
+    const firstBad = errors.find(([, m]) => m);
+    if (firstBad) {
+      haptic('error');
+      $(firstBad[0]).focus();
+      return;
+    }
+
+    haptic('impact', 'medium');
+    submit.disabled = true;
+    document.activeElement && document.activeElement.blur();
+    screens.result.classList.remove('revealed');
+    show('loading');
+
+    const payload = Object.fromEntries(FIELDS.map((f) => [f, $(f).value.trim()]));
+    let response;
+    try {
+      [response] = await Promise.all([api('/app/api/forecast', payload), playSteps()]);
+    } catch (err) {
+      response = { status: 0, data: { ok: false } };
+    }
+    submit.disabled = false;
+    const { data } = response;
+
+    if (data.ok) {
+      render(data);
+      show('result');
+      haptic('success');
+      requestAnimationFrame(() => requestAnimationFrame(() => screens.result.classList.add('revealed')));
+      screens.result.focus({ preventScroll: true });
+      return;
+    }
+
+    show('form');
+    haptic('error');
+    if (data.field) {
+      setError(data.field, data.message);
+      $(data.field).focus();
+    } else {
+      const box = $('form-error');
+      box.textContent = data.message || '\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u0432\u044F\u0437\u0430\u0442\u044C\u0441\u044F \u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u0438 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \xAB\u0423\u0437\u043D\u0430\u0442\u044C \u043F\u0440\u043E\u0433\u043D\u043E\u0437\xBB \u0435\u0449\u0451 \u0440\u0430\u0437.';
+      box.hidden = false;
+    }
+  });
+
+  $('full').addEventListener('click', async () => {
+    const btn = $('full');
+    btn.disabled = true;
+    haptic('impact', 'medium');
+    try {
+      const { data } = await api('/app/api/full', {});
+      if (!data.ok) throw new Error('failed');
+      btn.hidden = true;
+      $('full-done-text').textContent = data.saved
+        ? '\u0417\u0430\u044F\u0432\u043A\u0430 \u043F\u0440\u0438\u043D\u044F\u0442\u0430. \u0410\u0441\u0442\u0440\u043E\u043B\u043E\u0433 \u043D\u0430\u043F\u0438\u0448\u0435\u0442 \u0432\u0430\u043C \u0432 Telegram \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 \u0434\u043D\u044F.'
+        : '\u0417\u0430\u044F\u0432\u043A\u0430 \u043F\u0440\u0438\u043D\u044F\u0442\u0430. \u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0438\u0437 \u0431\u043E\u0442\u0430 \u0432 Telegram, \u0447\u0442\u043E\u0431\u044B \u0430\u0441\u0442\u0440\u043E\u043B\u043E\u0433 \u043C\u043E\u0433 \u0432\u0430\u043C \u043D\u0430\u043F\u0438\u0441\u0430\u0442\u044C.';
+      $('full-done').hidden = false;
+      haptic('success');
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '\u041D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C \u2014 \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437';
+      haptic('error');
+    }
+  });
+
+  $('again').addEventListener('click', () => {
+    FIELDS.forEach((f) => { $(f).value = ''; setError(f, ''); });
+    show('form');
+    $('name').focus();
+  });
+})();
+<\/script>
+</body>
+</html>
+`;
+
+// src/miniapp.js
+var FIELD_BY_ERROR = { bad_name: "name", bad_date: "birth_date", bad_place: "birth_place" };
+var MAX_AGE_SECONDS = 24 * 60 * 60;
+async function hmac(key, message) {
+  const k = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(message)));
+}
+__name(hmac, "hmac");
+var hex = /* @__PURE__ */ __name((bytes) => [...bytes].map((b) => b.toString(16).padStart(2, "0")).join(""), "hex");
+async function verifyInitData(initData, botToken, nowMs = Date.now()) {
+  if (!initData || !botToken) return null;
+  const params = new URLSearchParams(initData);
+  const hash2 = params.get("hash");
+  if (!hash2) return null;
+  const secret = await hmac(new TextEncoder().encode("WebAppData"), botToken);
+  const checkString = /* @__PURE__ */ __name((skip) => [...params.entries()].filter(([k]) => !skip.includes(k)).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([k, v]) => `${k}=${v}`).join("\n"), "checkString");
+  let valid = false;
+  for (const skip of [["hash"], ["hash", "signature"]]) {
+    if (hex(await hmac(secret, checkString(skip))) === hash2) {
+      valid = true;
+      break;
+    }
+  }
+  if (!valid) return null;
+  const authDate = Number(params.get("auth_date"));
+  if (!authDate || nowMs / 1e3 - authDate > MAX_AGE_SECONDS) return null;
+  try {
+    const user = JSON.parse(params.get("user") || "null");
+    return user && user.id ? user : null;
+  } catch {
+    return null;
+  }
+}
+__name(verifyInitData, "verifyInitData");
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
+}
+__name(json, "json");
+async function readBody(request) {
+  return request.json().catch(() => ({}));
+}
+__name(readBody, "readBody");
+async function resolveUser(body, env) {
+  if (!body.initData) return null;
+  return await verifyInitData(body.initData, env.BOT_TOKEN) || false;
+}
+__name(resolveUser, "resolveUser");
+async function forecastApi(request, env, deps) {
+  const body = await readBody(request);
+  const user = await resolveUser(body, env);
+  if (user === false) return json({ ok: false, error: "bad_init_data", message: "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C \u0432\u0445\u043E\u0434 \u0447\u0435\u0440\u0435\u0437 Telegram. \u0417\u0430\u043A\u0440\u043E\u0439\u0442\u0435 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0438 \u043E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 \u0435\u0433\u043E \u0441\u043D\u043E\u0432\u0430 \u0438\u0437 \u0431\u043E\u0442\u0430." }, 401);
+  let result;
+  try {
+    result = makeForecast(
+      { name: body.name, birthDate: body.birth_date, birthPlace: body.birth_place },
+      { upsell: env.UPSELL_TEXT || BOT_UPSELL }
+    );
+  } catch (e) {
+    if (!(e instanceof InputError)) throw e;
+    return json({ ok: false, error: e.code, field: FIELD_BY_ERROR[e.code], message: e.message }, 422);
+  }
+  let saved = false;
+  if (user && env.LEADS) {
+    const store = kvStore(env.LEADS);
+    const now = /* @__PURE__ */ new Date();
+    const lead = await store.get(user.id) ?? newLead(user, now);
+    recordForecast(lead, result, now, "Mini App");
+    await store.put(lead);
+    saved = true;
+    await deps.tg("sendMessage", { chat_id: user.id, text: result.text, ...KB_DONE });
+    if (env.ADMIN_CHAT_ID) await deps.tg("sendMessage", { chat_id: env.ADMIN_CHAT_ID, text: cardText(lead, NOTIFY.forecast("Mini App")) });
+  }
+  return json({ ok: true, saved, sections: result.sections, data: result.data });
+}
+__name(forecastApi, "forecastApi");
+async function fullApi(request, env, deps) {
+  const body = await readBody(request);
+  const user = await resolveUser(body, env);
+  if (user === false) return json({ ok: false, error: "bad_init_data" }, 401);
+  if (!user || !env.LEADS) return json({ ok: true, saved: false });
+  const store = kvStore(env.LEADS);
+  const now = /* @__PURE__ */ new Date();
+  const lead = await store.get(user.id) ?? newLead(user, now);
+  const first = recordWantsFull(lead, now);
+  await store.put(lead);
+  if (first) {
+    await deps.tg("sendMessage", { chat_id: user.id, text: "\u0417\u0430\u044F\u0432\u043A\u0430 \u043D\u0430 \u043F\u043E\u043B\u043D\u044B\u0439 \u0440\u0430\u0437\u0431\u043E\u0440 \u043F\u0440\u0438\u043D\u044F\u0442\u0430 \u2728 \u0410\u0441\u0442\u0440\u043E\u043B\u043E\u0433 \u043D\u0430\u043F\u0438\u0448\u0435\u0442 \u0432\u0430\u043C \u0437\u0434\u0435\u0441\u044C \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 \u0434\u043D\u044F.", ...KB_DONE });
+    if (env.ADMIN_CHAT_ID) await deps.tg("sendMessage", { chat_id: env.ADMIN_CHAT_ID, text: cardText(lead, NOTIFY.wantsFull) });
+  }
+  return json({ ok: true, saved: true });
+}
+__name(fullApi, "fullApi");
+async function handleMiniApp(request, env, pathname, deps) {
+  if (pathname === "/app" || pathname === "/app/") {
+    return new Response(miniapp_page_default, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" } });
+  }
+  if (request.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
+  if (pathname === "/app/api/forecast") return forecastApi(request, env, deps);
+  if (pathname === "/app/api/full") return fullApi(request, env, deps);
+  return json({ ok: false, error: "not_found" }, 404);
+}
+__name(handleMiniApp, "handleMiniApp");
+
 // src/worker.js
 var CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, X-Api-Key"
 };
-function json(body, status = 200) {
+function json2(body, status = 200) {
   return new Response(JSON.stringify(body, null, 2), {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", ...CORS }
   });
 }
-__name(json, "json");
+__name(json2, "json");
 function pick(obj, keys) {
   for (const k of keys) {
     if (obj[k] != null && String(obj[k]).trim() !== "") return String(obj[k]);
@@ -685,7 +1464,7 @@ __name(missingConfig, "missingConfig");
 async function forecast(request, url, env) {
   if (env.API_KEY) {
     const key = request.headers.get("X-Api-Key") || url.searchParams.get("key");
-    if (key !== env.API_KEY) return json({ ok: false, error: "unauthorized" }, 401);
+    if (key !== env.API_KEY) return json2({ ok: false, error: "unauthorized" }, 401);
   }
   const p = await readParams(request, url);
   try {
@@ -698,10 +1477,10 @@ async function forecast(request, url, env) {
       },
       { upsell: env.UPSELL_TEXT || void 0 }
     );
-    return json({ ok: true, forecast: result.text, ...result.data });
+    return json2({ ok: true, forecast: result.text, ...result.data });
   } catch (e) {
-    if (e instanceof InputError) return json({ ok: false, error: e.code, message: e.message }, 422);
-    return json({ ok: false, error: "internal" }, 500);
+    if (e instanceof InputError) return json2({ ok: false, error: e.code, message: e.message }, 422);
+    return json2({ ok: false, error: "internal" }, 500);
   }
 }
 __name(forecast, "forecast");
@@ -715,7 +1494,8 @@ async function telegramWebhook(request, env) {
       tg: telegramApi(env.BOT_TOKEN, env.TELEGRAM_API),
       store: kvStore(env.LEADS),
       adminChatId: env.ADMIN_CHAT_ID,
-      upsell: env.UPSELL_TEXT || void 0
+      upsell: env.UPSELL_TEXT || void 0,
+      appUrl: `${new URL(request.url).origin}/app`
     });
   } catch (e) {
     console.log("update failed", e.stack || e);
@@ -725,10 +1505,10 @@ async function telegramWebhook(request, env) {
 __name(telegramWebhook, "telegramWebhook");
 async function setup(url, env) {
   const missing = missingConfig(env);
-  if (missing.length) return json({ ok: false, error: `\u041D\u0435 \u0437\u0430\u0434\u0430\u043D\u044B \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435: ${missing.join(", ")}` }, 503);
+  if (missing.length) return json2({ ok: false, error: `\u041D\u0435 \u0437\u0430\u0434\u0430\u043D\u044B \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435: ${missing.join(", ")}` }, 503);
   const tg = telegramApi(env.BOT_TOKEN, env.TELEGRAM_API);
   const me = await tg("getMe", {});
-  if (!me.ok) return json({ ok: false, error: "Telegram \u043D\u0435 \u043F\u0440\u0438\u043D\u044F\u043B BOT_TOKEN \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0442\u043E\u043A\u0435\u043D \u043E\u0442 @BotFather" }, 400);
+  if (!me.ok) return json2({ ok: false, error: "Telegram \u043D\u0435 \u043F\u0440\u0438\u043D\u044F\u043B BOT_TOKEN \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0442\u043E\u043A\u0435\u043D \u043E\u0442 @BotFather" }, 400);
   const hook = await tg("setWebhook", {
     url: `${url.origin}/telegram`,
     secret_token: await webhookSecret(env.BOT_TOKEN),
@@ -742,17 +1522,20 @@ async function setup(url, env) {
     ]
   });
   await tg("setMyShortDescription", { short_description: "\u0411\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u044B\u0439 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u043D\u043E\u0437 \u043F\u043E \u0438\u043C\u0435\u043D\u0438, \u0434\u0430\u0442\u0435 \u0438 \u043C\u0435\u0441\u0442\u0443 \u0440\u043E\u0436\u0434\u0435\u043D\u0438\u044F \u{1F52E}" });
-  return json({
+  const menu = await tg("setChatMenuButton", { menu_button: { type: "web_app", text: "\u041F\u0440\u043E\u0433\u043D\u043E\u0437", web_app: { url: `${url.origin}/app` } } });
+  return json2({
     ok: hook.ok,
     bot: `https://t.me/${me.result.username}`,
     crm: `${url.origin}/crm?key=${encodeURIComponent(env.ADMIN_KEY)}`,
-    webhook: hook.ok ? "\u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0451\u043D" : hook.description
+    app: `${url.origin}/app`,
+    webhook: hook.ok ? "\u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0451\u043D" : hook.description,
+    menu_button: menu.ok ? "\u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0430" : menu.description
   });
 }
 __name(setup, "setup");
 async function crm(env) {
   const missing = missingConfig(env).filter((m) => m !== "BOT_TOKEN");
-  if (missing.length) return json({ ok: false, error: `\u041D\u0435 \u0437\u0430\u0434\u0430\u043D\u044B \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435: ${missing.join(", ")}` }, 503);
+  if (missing.length) return json2({ ok: false, error: `\u041D\u0435 \u0437\u0430\u0434\u0430\u043D\u044B \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435: ${missing.join(", ")}` }, 503);
   const leads = await kvStore(env.LEADS).list();
   return new Response(renderCrmPage(leads, { timeZone: env.TIMEZONE || "Europe/Moscow" }), {
     headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" }
@@ -766,20 +1549,25 @@ var worker_default = {
     switch (url.pathname) {
       case "/":
       case "/health":
-        return json({ ok: true, service: "esoteric-forecast", usage: "POST /forecast {name, birth_date, birth_place}" });
+        return json2({ ok: true, service: "esoteric-forecast", usage: "POST /forecast {name, birth_date, birth_place}" });
       case "/forecast":
         return forecast(request, url, env);
       case "/telegram":
-        if (request.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
+        if (request.method !== "POST") return json2({ ok: false, error: "method_not_allowed" }, 405);
         return telegramWebhook(request, env);
+      case "/app":
+      case "/app/":
+      case "/app/api/forecast":
+      case "/app/api/full":
+        return handleMiniApp(request, env, url.pathname, { tg: telegramApi(env.BOT_TOKEN, env.TELEGRAM_API) });
       case "/setup":
       case "/crm":
         if (!env.ADMIN_KEY || url.searchParams.get("key") !== env.ADMIN_KEY) {
-          return json({ ok: false, error: "unauthorized", hint: "\u0414\u043E\u0431\u0430\u0432\u044C\u0442\u0435 ?key=\u0432\u0430\u0448_ADMIN_KEY" }, 401);
+          return json2({ ok: false, error: "unauthorized", hint: "\u0414\u043E\u0431\u0430\u0432\u044C\u0442\u0435 ?key=\u0432\u0430\u0448_ADMIN_KEY" }, 401);
         }
         return url.pathname === "/setup" ? setup(url, env) : crm(env);
       default:
-        return json({ ok: false, error: "not_found" }, 404);
+        return json2({ ok: false, error: "not_found" }, 404);
     }
   }
 };
