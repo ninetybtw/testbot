@@ -1,13 +1,14 @@
 {
-  "name": "esoteric-forecast-bot",
+  "name": "astra-bot",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Бесплатный эзотерический прогноз по ФИО, дате и месту рождения — вебхук для TorroCRM",
+  "description": "Telegram-бот с бесплатным эзотерическим прогнозом по ФИО, дате и месту рождения, мини-CRM и вебхук для TorroCRM",
   "scripts": {
     "test": "node --test",
     "dev": "npx wrangler dev",
     "deploy": "npx wrangler deploy",
+    "build": "npx wrangler deploy --dry-run --outdir dist && rm -f dist/worker.js.map dist/README.md && sed -i '/sourceMappingURL/d' dist/worker.js && sed -i '1i // Собрано из папки src/ командой npm run build — не редактируйте вручную. Этот файл целиком вставляется в редактор кода Cloudflare.' dist/worker.js",
     "demo": "node scripts/demo.js"
   }
 }
