@@ -1,0 +1,377 @@
+<meta charset="utf-8">
+<title>Астра — демо бота</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: two working panes side by side — the Telegram chat the client sees, and the TorroCRM card the manager sees. Stacks on phones. */
+  :root {
+    --bg: #EDEFF5;
+    --surface: #FFFFFF;
+    --surface-2: #F5F6FA;
+    --ink: #1B1E38;
+    --muted: #5D6180;
+    --line: #D8DBE7;
+    --accent: #8A5F12;
+    --accent-soft: #F3E7CF;
+    --user-bg: #262B57;
+    --user-fg: #F5F3EC;
+    --ok: #1F7A4D;
+    --ok-soft: #DDF1E6;
+    --font-display: "Forum", "Palatino Linotype", Georgia, serif;
+    --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D0F21; --surface: #161931; --surface-2: #1C2040; --ink: #E8E6F1; --muted: #9B9DB9;
+      --line: #2A2E4E; --accent: #D9AB52; --accent-soft: #3A3120; --user-bg: #343C7A; --user-fg: #F5F3EC;
+      --ok: #5FCB93; --ok-soft: #173A2A; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0D0F21; --surface: #161931; --surface-2: #1C2040; --ink: #E8E6F1; --muted: #9B9DB9;
+    --line: #2A2E4E; --accent: #D9AB52; --accent-soft: #3A3120; --user-bg: #343C7A; --user-fg: #F5F3EC;
+    --ok: #5FCB93; --ok-soft: #173A2A; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+    padding-block: 28px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 22px; }
+  header { display: grid; gap: 6px; }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 4vw, 40px); line-height: 1.15; margin: 0; text-wrap: balance; }
+  .lead { margin: 0; color: var(--muted); max-width: 68ch; }
+
+  .panes { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .panes { grid-template-columns: minmax(0, 1fr); } }
+
+  .pane { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+  .pane-head { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--user-bg); color: var(--accent-soft); font-family: var(--font-display); font-size: 20px; flex: none; }
+  .pane-title { font-weight: 700; line-height: 1.2; }
+  .pane-sub { font-size: 12.5px; color: var(--muted); }
+  .pane-head .spacer { flex: 1; }
+
+  button { font: inherit; cursor: pointer; }
+  .btn-ghost { white-space: nowrap; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 8px; padding: 6px 11px; font-size: 13px; font-weight: 600; }
+  .btn-ghost:hover { background: var(--surface-2); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Чат */
+  .chat { height: 560px; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--surface-2); }
+  .msg { max-width: 86%; padding: 9px 13px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; animation: rise .22s ease-out; }
+  .msg.bot { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .msg.user { align-self: flex-end; background: var(--user-bg); color: var(--user-fg); border-bottom-right-radius: 4px; }
+  .msg.forecast { border-color: var(--accent); max-width: 94%; }
+  .msg .time { display: block; text-align: right; font-size: 11px; opacity: .6; margin-top: 2px; }
+  .typing { align-self: flex-start; color: var(--muted); font-size: 13px; padding: 4px 6px; }
+  @keyframes rise { from { transform: translateY(6px); opacity: .4; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .msg { animation: none; } }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px 0; }
+  .chip { border: 1px solid var(--accent); color: var(--accent); background: transparent; border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; }
+  .chip:hover { background: var(--accent-soft); }
+  form.composer { display: flex; gap: 8px; padding: 12px 16px 14px; }
+  .composer input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 10px 12px; font: inherit; }
+  .composer button { border: 0; background: var(--user-bg); color: var(--user-fg); border-radius: 10px; padding: 0 16px; font-weight: 700; }
+  .composer input:disabled, .composer button:disabled { opacity: .5; cursor: default; }
+
+  /* CRM */
+  .crm-body { padding: 16px; display: grid; gap: 18px; }
+  .stages { display: flex; flex-wrap: wrap; gap: 6px; }
+  .stage { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .stage.done { color: var(--ok); border-color: var(--ok); }
+  .stage.current { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
+  .section-label { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin: 0 0 8px; }
+  dl.fields { margin: 0; display: grid; grid-template-columns: minmax(120px, auto) minmax(0, 1fr); border-top: 1px solid var(--line); }
+  dl.fields dt, dl.fields dd { margin: 0; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  dl.fields dt { color: var(--muted); font-size: 13.5px; padding-right: 12px; }
+  dl.fields dd { font-family: var(--font-mono); font-size: 13.5px; overflow-wrap: anywhere; transition: background-color .6s; }
+  dl.fields dd.empty { color: var(--muted); }
+  dl.fields dd.flash { background: var(--accent-soft); }
+  .log { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 13px; max-height: 150px; overflow-y: auto; }
+  .log li { display: flex; gap: 10px; }
+  .log time { font-family: var(--font-mono); color: var(--muted); flex: none; font-variant-numeric: tabular-nums; }
+  .log .empty-log { color: var(--muted); }
+  details { border: 1px solid var(--line); border-radius: 10px; }
+  summary { padding: 9px 12px; cursor: pointer; font-weight: 600; font-size: 13.5px; }
+  pre { margin: 0; padding: 12px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; overflow-x: auto; background: var(--surface-2); }
+  .note { font-size: 13px; color: var(--muted); margin: 0; max-width: 72ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Тестовая механика · TorroCRM</div>
+    <h1>Бот «Астра»: анкета, карточка клиента, бесплатный прогноз</h1>
+    <p class="lead">Слева то, что клиент видит в Telegram. Справа карточка клиента в CRM: она заполняется по мере ответов и меняет стадию воронки. Ответьте боту сами или нажмите «Пройти на примере».</p>
+  </header>
+
+  <div class="panes">
+    <section class="pane" aria-label="Чат с ботом">
+      <div class="pane-head">
+        <div class="avatar" aria-hidden="true">✶</div>
+        <div><div class="pane-title">Астра · прогнозы</div><div class="pane-sub">бот</div></div>
+        <div class="spacer"></div>
+        <button class="btn-ghost" id="autoplay" type="button">Пройти на примере</button>
+        <button class="btn-ghost" id="restart" type="button">Заново</button>
+      </div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="chips" id="chips"></div>
+      <form class="composer" id="composer">
+        <input id="answer" autocomplete="off" placeholder="Ваш ответ…" aria-label="Ваш ответ">
+        <button type="submit" id="send">Отправить</button>
+      </form>
+    </section>
+
+    <section class="pane" aria-label="Карточка клиента в CRM">
+      <div class="pane-head">
+        <div><div class="pane-title">Карточка клиента</div><div class="pane-sub">TorroCRM · воронка «Прогнозы»</div></div>
+      </div>
+      <div class="crm-body">
+        <div>
+          <p class="section-label">Стадия</p>
+          <div class="stages" id="stages"></div>
+        </div>
+        <div>
+          <p class="section-label">Поля</p>
+          <dl class="fields" id="fields"></dl>
+        </div>
+        <div>
+          <p class="section-label">История изменений</p>
+          <ul class="log" id="log"></ul>
+        </div>
+        <details id="webhook">
+          <summary>Запрос и ответ вебхука /forecast</summary>
+          <pre id="webhook-json">Появится после того, как клиент ответит на три вопроса.</pre>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <p class="note">Прогноз считается по правилам: знак зодиака, восточный гороскоп, число судьбы по дате, число имени по пифагоровой таблице, личный год и число места рождения. Один и тот же человек получает один и тот же текст. В демо расчёт выполняется в браузере тем же кодом, что и в вебхуке.</p>
+</div>
+
+<script type="module">
+  import { makeForecast, parseFullName, parseBirthDate, parseBirthPlace, InputError } from './src/forecast.js';
+
+  const STAGES = ['Новый', 'Анкета заполнена', 'Бесплатный прогноз', 'Хочет полный разбор'];
+  const FIELDS = [
+    ['full_name', 'ФИО'], ['birth_date', 'Дата рождения'], ['birth_place', 'Место рождения'],
+    ['zodiac', 'Знак зодиака'], ['life_path_number', 'Число судьбы'], ['forecast_sent', 'Прогноз выдан'],
+  ];
+  const EXAMPLE = ['Иванова Мария Петровна', '14 марта 1990', 'Казань'];
+
+  const STEPS = [
+    { key: 'name', ask: 'Здравствуйте! Я Астра 🔮 Составлю для вас бесплатный персональный прогноз по имени, дате и месту рождения.\n\nКак вас зовут полностью — фамилия, имя и отчество?',
+      parse: (t) => parseFullName(t).full, field: 'full_name' },
+    { key: 'date', ask: (s) => `Приятно познакомиться, ${s.firstName}! Когда вы родились? Напишите дату, например 14.03.1990.`,
+      parse: (t) => { const d = parseBirthDate(t); return `${String(d.day).padStart(2, '0')}.${String(d.month).padStart(2, '0')}.${d.year}`; }, field: 'birth_date' },
+    { key: 'place', ask: 'И последнее: в каком городе или населённом пункте вы родились?',
+      parse: (t) => parseBirthPlace(t), field: 'birth_place' },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const chat = $('chat'), chips = $('chips'), input = $('answer'), send = $('send');
+  let state, timers = [];
+
+  const now = () => new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
+
+  function addMsg(text, who, extra = '') {
+    const el = document.createElement('div');
+    el.className = `msg ${who} ${extra}`;
+    el.textContent = text;
+    const t = document.createElement('span');
+    t.className = 'time';
+    t.textContent = now();
+    el.append(t);
+    chat.append(el);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function botSay(text, extra, delay = 650) {
+    return new Promise((resolve) => {
+      const typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.textContent = 'Астра печатает…';
+      chat.append(typing);
+      chat.scrollTop = chat.scrollHeight;
+      later(() => { typing.remove(); addMsg(text, 'bot', extra); resolve(); }, delay);
+    });
+  }
+
+  function renderStages() {
+    $('stages').replaceChildren(...STAGES.map((s, i) => {
+      const el = document.createElement('span');
+      el.className = 'stage' + (i < state.stage ? ' done' : i === state.stage ? ' current' : '');
+      el.textContent = s;
+      return el;
+    }));
+  }
+
+  function renderFields(flashKey) {
+    $('fields').replaceChildren(...FIELDS.flatMap(([k, label]) => {
+      const dt = document.createElement('dt');
+      dt.textContent = label;
+      const dd = document.createElement('dd');
+      const v = state.card[k];
+      dd.textContent = v ?? '—';
+      if (v == null) dd.classList.add('empty');
+      if (k === flashKey) { dd.classList.add('flash'); later(() => dd.classList.remove('flash'), 900); }
+      return [dt, dd];
+    }));
+  }
+
+  function renderLog() {
+    const log = $('log');
+    if (!state.log.length) {
+      const li = document.createElement('li');
+      li.className = 'empty-log';
+      li.textContent = 'Пока пусто: изменения появятся после первого ответа.';
+      log.replaceChildren(li);
+      return;
+    }
+    log.replaceChildren(...state.log.map(([t, text]) => {
+      const li = document.createElement('li');
+      const time = document.createElement('time');
+      time.textContent = t;
+      const span = document.createElement('span');
+      span.textContent = text;
+      li.append(time, span);
+      return li;
+    }));
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function setField(key, value) {
+    state.card[key] = value;
+    const label = FIELDS.find(([k]) => k === key)[1];
+    state.log.push([now(), `Поле «${label}» = ${value}`]);
+    renderFields(key);
+    renderLog();
+  }
+
+  function setStage(i) {
+    state.stage = i;
+    state.log.push([now(), `Стадия → ${STAGES[i]}`]);
+    renderStages();
+    renderLog();
+  }
+
+  function setChips(list) {
+    chips.replaceChildren(...list.map(([label, fn]) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = label;
+      b.addEventListener('click', fn);
+      return b;
+    }));
+  }
+
+  function lockInput(locked) {
+    input.disabled = locked;
+    send.disabled = locked;
+  }
+
+  function askCurrent() {
+    const step = STEPS[state.step];
+    const text = typeof step.ask === 'function' ? step.ask(state) : step.ask;
+    lockInput(true);
+    botSay(text, '', state.step === 0 ? 300 : 650).then(() => {
+      lockInput(false);
+      setChips([[`Пример: ${EXAMPLE[state.step]}`, () => answer(EXAMPLE[state.step])]]);
+      if (!state.auto) input.focus({ preventScroll: true });
+    });
+  }
+
+  async function answer(text) {
+    text = text.trim();
+    if (!text || input.disabled) return;
+    addMsg(text, 'user');
+    input.value = '';
+    setChips([]);
+
+    if (state.done) {
+      if (/разбор|хочу|да/i.test(text)) {
+        lockInput(true);
+        setStage(3);
+        await botSay('Отлично! Передала вашу заявку астрологу — он напишет вам здесь в течение дня и расскажет, как получить полный разбор ✨');
+        lockInput(false);
+      } else {
+        await botSay('Если захотите полный разбор на 12 месяцев — просто напишите «Хочу полный разбор».');
+        setChips([['Хочу полный разбор', () => answer('Хочу полный разбор')]]);
+      }
+      return;
+    }
+
+    const step = STEPS[state.step];
+    try {
+      const value = step.parse(text);
+      state.raw[step.key] = text;
+      if (step.key === 'name') state.firstName = parseFullName(text).firstName;
+      setField(step.field, value);
+    } catch (e) {
+      if (!(e instanceof InputError)) throw e;
+      lockInput(true);
+      await botSay(e.message);
+      lockInput(false);
+      setChips([[`Пример: ${EXAMPLE[state.step]}`, () => answer(EXAMPLE[state.step])]]);
+      return;
+    }
+
+    state.step += 1;
+    if (state.step < STEPS.length) { askCurrent(); return; }
+
+    setStage(1);
+    lockInput(true);
+    await botSay(`Спасибо, ${state.firstName}! Считаю вашу карту — это займёт несколько секунд ✨`);
+    const request = { name: state.card.full_name, birth_date: state.card.birth_date, birth_place: state.card.birth_place };
+    const result = makeForecast({ name: request.name, birthDate: request.birth_date, birthPlace: request.birth_place });
+    $('webhook-json').textContent =
+      `POST /forecast\n${JSON.stringify(request, null, 2)}\n\n→ 200 OK\n${JSON.stringify({ ok: true, forecast: result.text.slice(0, 60) + '…', ...result.data }, null, 2)}`;
+    await botSay(result.text, 'forecast', 1400);
+    setField('zodiac', result.data.zodiac);
+    setField('life_path_number', String(result.data.life_path_number));
+    setField('forecast_sent', 'Да');
+    setStage(2);
+    state.done = true;
+    lockInput(false);
+    setChips([['Хочу полный разбор', () => answer('Хочу полный разбор')]]);
+  }
+
+  function reset() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    state = { step: 0, stage: 0, card: {}, log: [], raw: {}, firstName: '', done: false, auto: false };
+    chat.replaceChildren();
+    $('webhook-json').textContent = 'Появится после того, как клиент ответит на три вопроса.';
+    renderStages();
+    renderFields();
+    renderLog();
+    askCurrent();
+  }
+
+  async function autoplay() {
+    reset();
+    state.auto = true;
+    const run = state;
+    for (let i = 0; i < EXAMPLE.length; i++) {
+      await new Promise((r) => later(r, i === 0 ? 900 : 1700));
+      if (state !== run) return;
+      await answer(EXAMPLE[i]);
+    }
+  }
+
+  $('composer').addEventListener('submit', (e) => { e.preventDefault(); answer(input.value); });
+  $('restart').addEventListener('click', reset);
+  $('autoplay').addEventListener('click', autoplay);
+  reset();
+</script>

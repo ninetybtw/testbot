@@ -1,0 +1,13 @@
+{
+  "name": "esoteric-forecast-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Бесплатный эзотерический прогноз по ФИО, дате и месту рождения — вебхук для TorroCRM",
+  "scripts": {
+    "test": "node --test",
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy",
+    "demo": "node scripts/demo.js"
+  }
+}
